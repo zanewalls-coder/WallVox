@@ -600,7 +600,7 @@ std::shared_ptr<Song> generate (const Settings& st)
             const int sectionIdx = (int) song->sections.size();
             const Chord normal = makeChord (tok, st.key, st.minor, st.genre, st.color == 0 ? 0 : st.color, false);
             const bool majorChord = normal.intervals.size() > 1 && normal.intervals[1] == 4;
-            if (colorEff == 2 && tok.startsWith ("5") && majorChord && clen >= 4.0)
+            if (colorEff == 2 && tok.startsWith ("5") && ! tok.contains ("/") && majorChord && clen >= 4.0)
             {
                 song->slots.push_back ({ t, clen * 0.5, makeChord (tok, st.key, st.minor, st.genre, 2, true), sectionIdx });
                 song->slots.push_back ({ t + clen * 0.5, clen * 0.5, normal, sectionIdx });

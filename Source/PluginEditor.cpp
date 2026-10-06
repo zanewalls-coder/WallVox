@@ -77,6 +77,7 @@ WallVoxEditor::WallVoxEditor (WallVoxProcessor& p)
             {
                 c->slider = std::make_unique<juce::Slider> (juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::TextBoxBelow);
                 c->slider->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 74, 16);
+                c->slider->setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
                 c->slider->setPopupDisplayEnabled (false, false, nullptr);
                 addAndMakeVisible (*c->slider);
                 c->sAtt = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (proc.apvts, id, *c->slider);

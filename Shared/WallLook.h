@@ -435,7 +435,7 @@ inline std::function<juce::String (float, int)> valueToText (juce::String unit, 
         if (unit == "Hz") return v >= 1000.0f ? juce::String (v / 1000.0f, 1) + " kHz" : juce::String (juce::roundToInt (v)) + " Hz";
         if (unit == "ms") return v < 10.0f ? juce::String (v, 1) + " ms" : juce::String (juce::roundToInt (v)) + " ms";
         if (unit == ":1") return juce::String (v, 1) + ":1";
-        if (lo == 0.0f && hi <= 1.0f) return juce::String (juce::roundToInt (v * 100.0f)) + "%";
+        if (lo >= 0.0f && hi <= 1.0f) return juce::String (juce::roundToInt (v * 100.0f)) + "%";
         return juce::String (v, 2);
     };
 }
@@ -446,7 +446,7 @@ inline std::function<float (const juce::String&)> textToValue (juce::String unit
     {
         float v = t.retainCharacters ("-0123456789.").getFloatValue();
         if (unit == "Hz" && t.containsIgnoreCase ("k")) v *= 1000.0f;
-        else if (unit.isEmpty() && lo == 0.0f && hi <= 1.0f) v = v / 100.0f;
+        else if (unit.isEmpty() && lo >= 0.0f && hi <= 1.0f) v = v / 100.0f;
         return juce::jlimit (lo, hi, v);
     };
 }

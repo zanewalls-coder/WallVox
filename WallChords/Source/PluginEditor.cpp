@@ -205,6 +205,7 @@ WallChordsEditor::WallChordsEditor (WallChordsProcessor& p) : AudioProcessorEdit
     {
         knobs[i].setSliderStyle (juce::Slider::RotaryHorizontalVerticalDrag);
         knobs[i].setTextBoxStyle (juce::Slider::TextBoxBelow, false, 70, 16);
+        knobs[i].setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
         addAndMakeVisible (knobs[i]);
         knobAtts[i] = std::make_unique<SA> (proc.apvts, knobIds[i], knobs[i]);
         knobLabels[i].setText (knobNames[i], juce::dontSendNotification);
