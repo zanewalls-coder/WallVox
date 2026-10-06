@@ -254,18 +254,25 @@ void WallVoxEditor::resized()
     auto area = juce::Rectangle<int> (16, 68 + SCOPE_H + 14, getWidth() - 32, getHeight() - (68 + SCOPE_H + 14) - 32);
     const int gap = 12, nRows = (int) rows.size();
     const int rowH = (area.getHeight() - gap * (nRows - 1)) / nRows;
-    auto weight = [this] (int i) { return juce::jmax (2, sections[(size_t) i].ids.size()); };
+    auto cellWeight = [this] (const juce::String& id)
+    { return dynamic_cast<juce::AudioParameterChoice*> (proc.apvts.getParameter (id)) != nullptr ? 1.45f : 1.0f; };
+    auto weight = [&] (int i)
+    {
+        float w = 0.0f;
+        for (auto& id : sections[(size_t) i].ids) w += cellWeight (id);
+        return juce::jmax (2.0f, w);
+    };
 
     for (int r = 0; r < nRows; ++r)
     {
         auto row = area.removeFromTop (rowH);
         area.removeFromTop (gap);
-        int total = 0;
+        float total = 0.0f;
         for (int i : rows[(size_t) r]) total += weight (i);
-        const float unit = (float) (row.getWidth() - gap * ((int) rows[(size_t) r].size() - 1)) / (float) total;
+        const float unit = (float) (row.getWidth() - gap * ((int) rows[(size_t) r].size() - 1)) / total;
         for (int i : rows[(size_t) r])
         {
-            sections[(size_t) i].area = row.removeFromLeft ((int) (unit * (float) weight (i)));
+            sections[(size_t) i].area = row.removeFromLeft ((int) (unit * weight (i)));
             row.removeFromLeft (gap);
         }
     }
@@ -275,14 +282,16 @@ void WallVoxEditor::resized()
     {
         if (s.toggle) s.toggle->setBounds (s.area.getX() + 10, s.area.getY() + 5, 22, 22);
         auto inner = s.area.withTrimmedTop (38).reduced (6, 6);
-        const int w = inner.getWidth() / s.ids.size();
+        float sum = 0.0f;
+        for (auto& id : s.ids) sum += cellWeight (id);
+        const float unitW = (float) inner.getWidth() / sum;
         for (int k = 0; k < s.ids.size(); ++k, ++ci)
         {
             auto& c = *controls[ci];
-            auto cell = inner.removeFromLeft (w);
+            auto cell = inner.removeFromLeft ((int) (unitW * cellWeight (s.ids[k])));
             c.label.setBounds (cell.removeFromBottom (18));
             if (c.slider) c.slider->setBounds (cell.withSizeKeepingCentre (juce::jmin (cell.getWidth(), cell.getHeight() + 6), cell.getHeight()));
-            else          c.combo->setBounds (cell.withSizeKeepingCentre (cell.getWidth() - 10, 30));
+            else          c.combo->setBounds (cell.withSizeKeepingCentre (cell.getWidth() - 6, 30));
         }
     }
 }

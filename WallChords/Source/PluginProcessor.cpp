@@ -1,5 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "WallLook.h"
 
 using namespace th;
 
@@ -13,7 +14,9 @@ static juce::AudioProcessorValueTreeState::ParameterLayout createLayout()
     { l.add (std::make_unique<C> (juce::ParameterID { id, 1 }, name, items, def)); };
     auto flt = [&] (const char* id, const char* name, float lo, float hi, float def, const char* unit = "")
     { l.add (std::make_unique<F> (juce::ParameterID { id, 1 }, name, juce::NormalisableRange<float> (lo, hi), def,
-                                  juce::AudioParameterFloatAttributes().withLabel (unit))); };
+                                  juce::AudioParameterFloatAttributes()
+                                      .withStringFromValueFunction (wl::valueToText (unit, lo, hi))
+                                      .withValueFromStringFunction (wl::textToValue (unit, lo, hi)))); };
 
     choice ("genre", "Genre", genreNames, 0);
     choice ("key", "Key", { "C", "C#/Db", "D", "D#/Eb", "E", "F", "F#/Gb", "G", "G#/Ab", "A", "A#/Bb", "B" }, 0);

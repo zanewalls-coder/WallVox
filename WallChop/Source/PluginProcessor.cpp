@@ -10,7 +10,9 @@ static std::unique_ptr<APF> fp (const char* id, const char* name, float lo, floa
     juce::NormalisableRange<float> r (lo, hi);
     if (skewCentre > 0.0f) r.setSkewForCentre (skewCentre);
     return std::make_unique<APF> (juce::ParameterID { id, 1 }, name, r, def,
-                                  juce::AudioParameterFloatAttributes().withLabel (unit));
+                                  juce::AudioParameterFloatAttributes()
+                                      .withStringFromValueFunction (wl::valueToText (unit, lo, hi))
+                                      .withValueFromStringFunction (wl::textToValue (unit, lo, hi)));
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout WallChopProcessor::createLayout()

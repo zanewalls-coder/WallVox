@@ -249,6 +249,17 @@ public:
         g.drawRoundedRectangle (r, 8.0f, 1.0f);
     }
 
+    juce::Label* createSliderTextBox (juce::Slider& sl) override
+    {
+        auto* l = LookAndFeel_V4::createSliderTextBox (sl);
+        l->setColour (juce::Label::outlineColourId, juce::Colours::transparentBlack);
+        l->setColour (juce::Label::backgroundColourId, juce::Colours::transparentBlack);
+        l->setColour (juce::Label::textColourId, c::text.withAlpha (0.8f));
+        l->setColour (juce::Label::outlineWhenEditingColourId, theme.a);
+        l->setFont (juce::FontOptions (12.0f));
+        return l;
+    }
+
     juce::Font getTextButtonFont (juce::TextButton&, int h) override { return juce::FontOptions (juce::jmin (14.0f, h * 0.45f), juce::Font::bold); }
 
     void drawComboBox (juce::Graphics& g, int w, int h, bool, int, int, int, int, juce::ComboBox& box) override
@@ -413,6 +424,32 @@ private:
     Theme theme;
     juce::String name;
 };
+
+// Friendly value text for knobs: "50%", "-3.0 dB", "1.2 kHz", "80 ms"...
+inline std::function<juce::String (float, int)> valueToText (juce::String unit, float lo, float hi)
+{
+    return [unit, lo, hi] (float v, int) -> juce::String
+    {
+        if (unit == "dB") return juce::String (v, 1) + " dB";
+        if (unit == "st") return (v > 0 ? "+" : "") + juce::String (v, 1) + " st";
+        if (unit == "Hz") return v >= 1000.0f ? juce::String (v / 1000.0f, 1) + " kHz" : juce::String (juce::roundToInt (v)) + " Hz";
+        if (unit == "ms") return v < 10.0f ? juce::String (v, 1) + " ms" : juce::String (juce::roundToInt (v)) + " ms";
+        if (unit == ":1") return juce::String (v, 1) + ":1";
+        if (lo == 0.0f && hi <= 1.0f) return juce::String (juce::roundToInt (v * 100.0f)) + "%";
+        return juce::String (v, 2);
+    };
+}
+
+inline std::function<float (const juce::String&)> textToValue (juce::String unit, float lo, float hi)
+{
+    return [unit, lo, hi] (const juce::String& t) -> float
+    {
+        float v = t.retainCharacters ("-0123456789.").getFloatValue();
+        if (unit == "Hz" && t.containsIgnoreCase ("k")) v *= 1000.0f;
+        else if (unit.isEmpty() && lo == 0.0f && hi <= 1.0f) v = v / 100.0f;
+        return juce::jlimit (lo, hi, v);
+    };
+}
 
 inline juce::String midiNoteName (int n)
 {

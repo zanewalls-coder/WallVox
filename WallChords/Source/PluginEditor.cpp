@@ -94,25 +94,20 @@ void Timeline::paint (juce::Graphics& g)
     if (! rollImage.isValid()) renderRoll (roll);
     g.drawImageAt (rollImage, 0, 0);
 
-    // chord lane
+    // chord lane: each section's progression written under it
     auto lane = area.removeFromBottom (chordH);
     g.setFont (juce::FontOptions (11.5f, juce::Font::bold));
-    float lastTextEnd = -1.0f;
-    for (const auto& sl : song->slots)
+    for (const auto& sec : song->sections)
     {
-        const float x0 = xOf (sl.start), x1 = xOf (sl.start + sl.len);
+        juce::StringArray names;
+        for (const auto& sl : song->slots)
+            if (sl.start >= sec.start && sl.start < sec.start + sec.len && names.size() < 5 && ! names.contains (sl.chord.name))
+                names.add (sl.chord.name);
+        auto box = juce::Rectangle<float> (xOf (sec.start), lane.getY(), xOf (sec.start + sec.len) - xOf (sec.start) - 3.0f, lane.getHeight());
         g.setColour (wl::c::panel);
-        g.fillRoundedRectangle (x0, lane.getY(), juce::jmax (1.0f, x1 - x0 - 1.5f), lane.getHeight(), 3.0f);
-        if (x0 >= lastTextEnd)
-        {
-            const float tw = juce::GlyphArrangement::getStringWidth (g.getCurrentFont(), sl.chord.name) + 8.0f;
-            if (tw < (x1 - x0) * 2.4f)
-            {
-                g.setColour (col::text.withAlpha (0.92f));
-                g.drawText (sl.chord.name, juce::Rectangle<float> (x0 + 4, lane.getY(), tw, lane.getHeight()), juce::Justification::centredLeft);
-                lastTextEnd = x0 + tw;
-            }
-        }
+        g.fillRoundedRectangle (box, 4.0f);
+        g.setColour (col::text.withAlpha (0.9f));
+        g.drawFittedText (names.joinIntoString (" "), box.toNearestInt().reduced (5, 0), juce::Justification::centredLeft, 1, 0.8f);
     }
 
     const double ph = proc.getPlayhead();
@@ -330,13 +325,13 @@ void WallChordsEditor::resized()
     // parts
     for (int i = 0; i < 4; ++i)
     {
-        const int y = 394 + i * 44;
+        const int y = 390 + i * 42;
         partOn[i].setBounds (28, y + 6, 24, 24);
         partLabel[i].setBounds (62, y, 120, 36);
         partStyle[i].setBounds (186, y + 3, 312, 30);
         drag[i]->setBounds (510, y + 3, 182, 30);
     }
-    dragAll.setBounds (510, 394 + 4 * 44 - 2, 182, 30);
+    dragAll.setBounds (510, 390 + 4 * 42, 182, 30);
 
     // feel knobs
     const int kw = (getWidth() - 734 - 16) / 4;
