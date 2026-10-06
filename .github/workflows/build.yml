@@ -1,0 +1,34 @@
+name: Build WallVox
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build (Apple Silicon + Intel)
+        run: |
+          cmake -B build -G Xcode \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DWALLVOX_PRESET_INDEX_URL="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/presets/index.json"
+          cmake --build build --config Release -- -quiet
+
+      - name: Package
+        run: |
+          mkdir -p out
+          cp -R build/WallVox_artefacts/Release/VST3/WallVox.vst3 out/
+          cp -R build/WallVox_artefacts/Release/AU/WallVox.component out/
+          codesign --force --deep -s - out/WallVox.vst3
+          codesign --force --deep -s - out/WallVox.component
+          cp install.command out/
+          chmod +x out/install.command
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WallVox-Mac
+          path: out
