@@ -7,6 +7,7 @@ public:
     WallVoxLook();
     void drawRotarySlider (juce::Graphics&, int x, int y, int w, int h, float pos,
                            float start, float end, juce::Slider&) override;
+    void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool highlighted, bool down) override;
 };
 
 class WallVoxEditor : public juce::AudioProcessorEditor
@@ -28,7 +29,15 @@ private:
         std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> cAtt;
         juce::Label label;
     };
-    struct Section { juce::String title; juce::StringArray ids; juce::Rectangle<int> area; };
+    struct Section
+    {
+        juce::String title, toggleId;
+        juce::StringArray ids;
+        juce::Rectangle<int> area;
+        std::unique_ptr<juce::ToggleButton> toggle;
+        std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> tAtt;
+    };
+    void updateSectionDimming();
 
     void rebuildPresetMenu();
     void savePreset();

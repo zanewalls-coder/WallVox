@@ -29,7 +29,13 @@ juce::AudioProcessorValueTreeState::ParameterLayout WallVoxProcessor::createLayo
     l.add (fp ("body", "Body", -6, 6, 0, "dB"));
     l.add (fp ("presence", "Presence", -6, 12, 2.5f, "dB"));
     l.add (fp ("air", "Air", -6, 12, 4, "dB"));
-    l.add (fp ("sat", "Warmth", 0, 1, 0.15f));
+    l.add (fp ("sat", "Drive", 0, 1, 0.15f));
+    l.add (std::make_unique<APC> (juce::ParameterID { "satType", 1 }, "Sat Type",
+             juce::StringArray { "Warm", "Tube", "Crunch" }, 0));
+    l.add (fp ("satMix", "Sat Mix", 0, 1, 1.0f));
+    for (auto* id : { "onTune", "onClean", "onTone", "onSat", "onDyn", "onDelay", "onSpace" })
+        l.add (std::make_unique<juce::AudioParameterBool> (juce::ParameterID { id, 1 },
+                 juce::String (id).fromFirstOccurrenceOf ("on", false, false) + " On", true));
     l.add (fp ("compThresh", "Threshold", -40, 0, -20, "dB"));
     l.add (fp ("compRatio", "Ratio", 1, 20, 4, ":1", 4));
     l.add (fp ("compAttack", "Attack", 0.1f, 100, 5, "ms", 10));
@@ -115,7 +121,10 @@ void WallVoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     float* const* ch = buffer.getArrayOfWritePointers();
 
     updateFilters();
-    tuner.setParams (p ("tuneAmt"), p ("tuneSpeed"), (int) p ("key"), (int) p ("scale"));
+    auto on = [this] (const char* id) { return p (id) > 0.5f; };
+    const bool onClean = on ("onClean"), onTone = on ("onTone"), onSat = on ("onSat"),
+               onDelay = on ("onDelay"), onSpace = on ("onSpace");
+    tuner.setParams (on ("onTune") ? p ("tuneAmt") : 0.0f, p ("tuneSpeed"), (int) p ("key"), (int) p ("scale"));
     buffer.applyGain (juce::Decibels::decibelsToGain (p ("inGain")));
 
     // ---- Stage 1: clean-up, tuning, de-essing ----
@@ -127,8 +136,14 @@ void WallVoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     for (int i = 0; i < n; ++i)
     {
         float fr[2] {};
-        for (int c = 0; c < nc; ++c) fr[c] = hpf.process (ch[c][i], c);
+        for (int c = 0; c < nc; ++c) fr[c] = onClean ? hpf.process (ch[c][i], c) : ch[c][i];
         tuner.processFrame (fr, nc);
+
+        if (! onClean)
+        {
+            for (int c = 0; c < nc; ++c) ch[c][i] = fr[c];
+            continue;
+        }
 
         float side = 0.0f;
         for (int c = 0; c < nc; ++c)
@@ -147,6 +162,8 @@ void WallVoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     }
 
     // ---- Stage 2: compression ----
+    if (on ("onDyn"))
+    {
     const float thr = p ("compThresh"), ratio = p ("compRatio");
     comp.setThreshold (thr);
     comp.setRatio (ratio);
@@ -158,6 +175,7 @@ void WallVoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
         comp.process (juce::dsp::ProcessContextReplacing<float> (sub));
     }
     buffer.applyGain (juce::Decibels::decibelsToGain (-thr * (1.0f - 1.0f / ratio) * 0.5f));
+    }
 
     // ---- Stage 3: tone, saturation, doubler, delay ----
     double bpm = 120.0;
@@ -167,7 +185,11 @@ void WallVoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     static const float beats[] = { 1.0f, 0.5f, 0.75f, 0.25f, 1.5f };
     const float targetDly = juce::jmin ((float) (beats[(int) p ("dlyTime")] * 60.0 / bpm * sr), (float) (sr * 2.0));
 
-    const float sat = p ("sat"), k = 1.0f + sat * 5.0f, normK = 1.0f / std::tanh (k);
+    const float sat = p ("sat"), satMix = p ("satMix");
+    const int satType = (int) p ("satType");
+    const float k = 1.0f + sat * (satType == 2 ? 40.0f : 5.0f), normK = 1.0f / std::tanh (k);
+    const float tubeBias = 0.25f, tubeOff = std::tanh (k * tubeBias);
+    const float crunchMakeup = 1.0f / std::sqrt (k);
     const float dbl = p ("double"), dlyMix = p ("dlyMix"), fb = p ("dlyFb");
     const float dblRate[2] = { 0.40f / (float) sr, 0.33f / (float) sr };
     const float dblBase[2] = { 11.0f, 16.0f };
@@ -180,19 +202,28 @@ void WallVoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
         float x[2] {}, mono = 0.0f;
         for (int c = 0; c < nc; ++c)
         {
-            float v = air.process (presence.process (body.process (ch[c][i], c), c), c);
-            v += sat * (std::tanh (k * v) * normK - v);
+            float v = ch[c][i];
+            if (onTone) v = air.process (presence.process (body.process (v, c), c), c);
+            if (onSat && sat > 0.0f)
+            {
+                float y;
+                if (satType == 0)      y = v + sat * (std::tanh (k * v) * normK - v);               // warm tape
+                else if (satType == 1) y = v + sat * ((std::tanh (k * (v + tubeBias)) - tubeOff) * normK - v); // tube (even harmonics)
+                else                   y = juce::jlimit (-0.7f, 0.7f, k * v) * crunchMakeup * 1.4f;  // hard-clip crunch
+                v += satMix * (y - v);
+            }
             x[c] = v;
             mono += v;
         }
         mono /= (float) nc;
+        const float dblIn = onSpace ? mono : 0.0f, dlyIn = onDelay ? mono : 0.0f;
 
         // Doubler: two slowly modulated short delays, one per side
         for (int c = 0; c < nc; ++c)
         {
             const float d = (dblBase[c] + 1.5f * std::sin (juce::MathConstants<float>::twoPi * dblPhase[c])) * msToS;
             const float wet = dblLine[c].read (d);
-            dblLine[c].push (mono);
+            dblLine[c].push (dblIn);
             dblPhase[c] += dblRate[c];
             if (dblPhase[c] >= 1.0f) dblPhase[c] -= 1.0f;
             x[c] += dbl * 0.7f * wet;
@@ -205,18 +236,18 @@ void WallVoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
             const float oL = dlyLine[0].read (dlySamples), oR = dlyLine[1].read (dlySamples);
             const float fL = dlyLp.process (dlyHp.process (oR, 0), 0);
             const float fR = dlyLp.process (dlyHp.process (oL, 1), 1);
-            dlyLine[0].push (mono + fb * fL);
+            dlyLine[0].push (dlyIn + fb * fL);
             dlyLine[1].push (fb * fR);
-            revBuf.setSample (0, i, x[0]);
-            revBuf.setSample (1, i, x[1]);
+            revBuf.setSample (0, i, onSpace ? x[0] : 0.0f);
+            revBuf.setSample (1, i, onSpace ? x[1] : 0.0f);
             ch[0][i] = x[0] + dlyMix * oL;
             ch[1][i] = x[1] + dlyMix * oR;
         }
         else
         {
             const float o = dlyLine[0].read (dlySamples);
-            dlyLine[0].push (mono + fb * dlyLp.process (dlyHp.process (o, 0), 0));
-            revBuf.setSample (0, i, x[0]);
+            dlyLine[0].push (dlyIn + fb * dlyLp.process (dlyHp.process (o, 0), 0));
+            revBuf.setSample (0, i, onSpace ? x[0] : 0.0f);
             ch[0][i] = x[0] + dlyMix * o;
         }
     }

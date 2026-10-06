@@ -48,17 +48,47 @@ void WallVoxLook::drawRotarySlider (juce::Graphics& g, int x, int y, int w, int 
     g.fillPath (tick, juce::AffineTransform::rotation (angle).translated (c));
 }
 
+void WallVoxLook::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b, bool highlighted, bool)
+{
+    auto r = b.getLocalBounds().toFloat().reduced (2.0f);
+    const bool on = b.getToggleState();
+    g.setColour (on ? col::accent : col::panel.brighter (0.3f));
+    g.fillRoundedRectangle (r, r.getHeight() * 0.5f);
+    g.setColour (on ? juce::Colours::white : col::dim.withAlpha (highlighted ? 1.0f : 0.8f));
+    g.setFont (juce::FontOptions (11.0f, juce::Font::bold));
+    g.drawText (on ? "ON" : "OFF", r, juce::Justification::centred);
+}
+
 WallVoxEditor::WallVoxEditor (WallVoxProcessor& p) : AudioProcessorEditor (p), proc (p)
 {
     setLookAndFeel (&look);
 
-    sections = {
-        { "TUNE",     { "tuneAmt", "tuneSpeed", "key", "scale" }, {} },
-        { "CLEAN",    { "hpf", "mud", "deess" }, {} },
-        { "TONE",     { "body", "presence", "air", "sat" }, {} },
-        { "DYNAMICS", { "compThresh", "compRatio", "compAttack", "compRelease" }, {} },
-        { "SPACE",    { "double", "dlyMix", "dlyTime", "dlyFb", "revMix", "revSize", "revDamp" }, {} },
-        { "LEVEL",    { "inGain", "outGain" }, {} } };
+    auto addSection = [this] (const char* title, const char* toggleId, juce::StringArray ids)
+    {
+        Section s;
+        s.title = title;
+        s.toggleId = toggleId;
+        s.ids = ids;
+        sections.push_back (std::move (s));
+    };
+    addSection ("TUNE",       "onTune",  { "tuneAmt", "tuneSpeed", "key", "scale" });
+    addSection ("CLEAN",      "onClean", { "hpf", "mud", "deess" });
+    addSection ("TONE",       "onTone",  { "body", "presence", "air" });
+    addSection ("SATURATION", "onSat",   { "satType", "sat", "satMix" });
+    addSection ("DYNAMICS",   "onDyn",   { "compThresh", "compRatio", "compAttack", "compRelease" });
+    addSection ("DELAY",      "onDelay", { "dlyTime", "dlyMix", "dlyFb" });
+    addSection ("SPACE",      "onSpace", { "double", "revMix", "revSize", "revDamp" });
+    addSection ("LEVEL",      "",        { "inGain", "outGain" });
+
+    for (auto& s : sections)
+    {
+        if (s.toggleId.isEmpty()) continue;
+        s.toggle = std::make_unique<juce::ToggleButton>();
+        s.toggle->setTooltip ("Turn " + s.title.toLowerCase() + " on or off");
+        addAndMakeVisible (*s.toggle);
+        s.tAtt = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment> (proc.apvts, s.toggleId, *s.toggle);
+        s.toggle->onStateChange = [this] { updateSectionDimming(); };
+    }
 
     for (auto& s : sections)
         for (auto& id : s.ids)
@@ -108,10 +138,27 @@ WallVoxEditor::WallVoxEditor (WallVoxProcessor& p) : AudioProcessorEditor (p), p
     addAndMakeVisible (status);
 
     rebuildPresetMenu();
-    setSize (980, 560);
+    updateSectionDimming();
+    setSize (1060, 570);
 }
 
 WallVoxEditor::~WallVoxEditor() { setLookAndFeel (nullptr); }
+
+void WallVoxEditor::updateSectionDimming()
+{
+    size_t ci = 0;
+    for (auto& s : sections)
+    {
+        const bool on = s.toggle == nullptr || s.toggle->getToggleState();
+        for (int k = 0; k < s.ids.size(); ++k, ++ci)
+        {
+            auto& c = *controls[ci];
+            c.label.setAlpha (on ? 1.0f : 0.35f);
+            if (c.slider) c.slider->setAlpha (on ? 1.0f : 0.35f);
+            else          c.combo->setAlpha (on ? 1.0f : 0.35f);
+        }
+    }
+}
 
 void WallVoxEditor::rebuildPresetMenu()
 {
@@ -233,13 +280,14 @@ void WallVoxEditor::resized()
             row.removeFromLeft (gap);
         }
     };
-    layoutRow (area.removeFromTop (rowH), 0, 3);
+    layoutRow (area.removeFromTop (rowH), 0, 4);
     area.removeFromTop (12);
-    layoutRow (area, 3, 3);
+    layoutRow (area, 4, 4);
 
     size_t ci = 0;
     for (auto& s : sections)
     {
+        if (s.toggle) s.toggle->setBounds (s.area.getRight() - 52, s.area.getY() + 6, 44, 20);
         auto inner = s.area.reduced (8).withTrimmedTop (22);
         const int w = inner.getWidth() / s.ids.size();
         for (int k = 0; k < s.ids.size(); ++k, ++ci)
