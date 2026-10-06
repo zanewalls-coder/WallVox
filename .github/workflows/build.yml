@@ -1,7 +1,8 @@
-name: Build WallVox + Wall Chop + Wall Chords
+name: Build Wall plugins + Hub
 
 on:
   push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,18 +13,22 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Build standalone apps and capture UI screenshots
+      - name: Build apps and capture UI screenshots
         run: |
           mkdir -p snaps
+          JUCE=""
           for pair in ".:WallVox:WallVox" "WallChop:WallChop:Wall Chop" "WallChords:WallChords:Wall Chords"; do
             src="${pair%%:*}"; rest="${pair#*:}"; tgt="${rest%%:*}"; prod="${rest#*:}"
-            extra=""
-            [ -d snap-WallVox/_deps/juce-src ] && extra="-DFETCHCONTENT_SOURCE_DIR_JUCE=$PWD/snap-WallVox/_deps/juce-src"
-            cmake -S "$src" -B "snap-$tgt" -DCMAKE_BUILD_TYPE=Release -DWALL_SNAPSHOT=ON $extra > /dev/null
+            cmake -S "$src" -B "snap-$tgt" -DCMAKE_BUILD_TYPE=Release -DWALL_SNAPSHOT=ON $JUCE > /dev/null
+            JUCE="-DFETCHCONTENT_SOURCE_DIR_JUCE=$PWD/snap-WallVox/_deps/juce-src"
             cmake --build "snap-$tgt" --target "${tgt}_Standalone" -j 4 > "snap-$tgt.log" 2>&1 || { tail -40 "snap-$tgt.log"; exit 1; }
             WALL_SNAPSHOT_DIR="$PWD/snaps" "snap-$tgt/${tgt}_artefacts/Release/Standalone/$prod.app/Contents/MacOS/$prod" &
             pid=$!; for t in $(seq 1 40); do sleep 1; kill -0 $pid 2>/dev/null || break; done; kill $pid 2>/dev/null || true
           done
+          cmake -S WallHub -B snap-hub -DCMAKE_BUILD_TYPE=Release -DWALL_SNAPSHOT=ON $JUCE > /dev/null
+          cmake --build snap-hub --target WallHub -j 4 > snap-hub.log 2>&1 || { tail -40 snap-hub.log; exit 1; }
+          WALL_SNAPSHOT_DIR="$PWD/snaps" "snap-hub/WallHub_artefacts/Release/Wall Hub.app/Contents/MacOS/Wall Hub" &
+          pid=$!; for t in $(seq 1 40); do sleep 1; kill -0 $pid 2>/dev/null || break; done; kill $pid 2>/dev/null || true
           ls -la snaps
       - name: Publish screenshots to the ui-snapshots branch
         run: |
@@ -38,13 +43,15 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Build WallVox
         run: |
           cmake -B build -G Xcode \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
-            -DWALLVOX_PRESET_INDEX_URL="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/presets/index.json"
+            -DWALLVOX_PRESET_INDEX_URL="https://raw.githubusercontent.com/${{ github.repository }}/main/presets/index.json"
           cmake --build build --config Release -- -quiet
 
       - name: Build Wall Chop
@@ -53,7 +60,7 @@ jobs:
             -DFETCHCONTENT_SOURCE_DIR_JUCE="$PWD/build/_deps/juce-src" \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
-            -DWALLVOX_PRESET_INDEX_URL="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/WallChop/presets/index.json"
+            -DWALLVOX_PRESET_INDEX_URL="https://raw.githubusercontent.com/${{ github.repository }}/main/WallChop/presets/index.json"
           cmake --build build-chop --config Release -- -quiet
 
       - name: Build Wall Chords
@@ -63,6 +70,16 @@ jobs:
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
           cmake --build build-chords --config Release -- -quiet
+
+      - name: Build Wall Hub
+        run: |
+          cmake -S WallHub -B build-hub -G Xcode \
+            -DFETCHCONTENT_SOURCE_DIR_JUCE="$PWD/build/_deps/juce-src" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DHUB_VERSION=$(git rev-list --count HEAD -- WallHub Shared) \
+            -DHUB_MANIFEST_URL="https://github.com/${{ github.repository }}/releases/download/latest/manifest.json"
+          cmake --build build-hub --config Release -- -quiet
 
       - name: Package
         run: |
@@ -74,19 +91,35 @@ jobs:
             for b in "out-$name"/*.vst3 "out-$name"/*.component; do codesign --force --deep -s - "$b"; done
             cp install.command "out-$name/"
             chmod +x "out-$name/install.command"
+            ditto -c -k "out-$name" "$name-Mac.zip"
           done
+          mkdir -p out-WallHub
+          cp -R "build-hub/WallHub_artefacts/Release/Wall Hub.app" out-WallHub/
+          codesign --force --deep -s - "out-WallHub/Wall Hub.app"
+          ditto -c -k out-WallHub WallHub-Mac.zip
+          python3 hub/make_manifest.py "${{ github.repository }}" manifest.json
+
+      - name: Publish to the "latest" release (used by Wall Hub)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view latest > /dev/null 2>&1 || gh release create latest --title "Latest builds" \
+            --notes "Updated automatically on every change. Install everything with Wall Hub."
+          gh release upload latest WallVox-Mac.zip WallChop-Mac.zip WallChords-Mac.zip WallHub-Mac.zip manifest.json hub/install-hub.sh --clobber
 
       - uses: actions/upload-artifact@v4
         with:
           name: WallVox-Mac
           path: out-WallVox
-
       - uses: actions/upload-artifact@v4
         with:
           name: WallChop-Mac
           path: out-WallChop
-
       - uses: actions/upload-artifact@v4
         with:
           name: WallChords-Mac
           path: out-WallChords
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WallHub-Mac
+          path: out-WallHub

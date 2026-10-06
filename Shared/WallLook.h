@@ -314,7 +314,8 @@ struct ScopeData
     }
 };
 
-inline float peakOf (const juce::AudioBuffer<float>& b, int numCh)
+template <typename Buffer>
+inline float peakOf (const Buffer& b, int numCh)
 {
     float m = 0.0f;
     for (int ch = 0; ch < juce::jmin (numCh, b.getNumChannels()); ++ch)
