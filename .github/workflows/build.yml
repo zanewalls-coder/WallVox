@@ -1,4 +1,4 @@
-name: Build WallVox + Wall Chop
+name: Build WallVox + Wall Chop + Wall Chords
 
 on:
   push:
@@ -27,9 +27,17 @@ jobs:
             -DWALLVOX_PRESET_INDEX_URL="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/WallChop/presets/index.json"
           cmake --build build-chop --config Release -- -quiet
 
+      - name: Build Wall Chords
+        run: |
+          cmake -S WallChords -B build-chords -G Xcode \
+            -DFETCHCONTENT_SOURCE_DIR_JUCE="$PWD/build/_deps/juce-src" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+          cmake --build build-chords --config Release -- -quiet
+
       - name: Package
         run: |
-          for pair in "build:WallVox" "build-chop:WallChop"; do
+          for pair in "build:WallVox" "build-chop:WallChop" "build-chords:WallChords"; do
             dir="${pair%%:*}"; name="${pair##*:}"
             mkdir -p "out-$name"
             cp -R "$dir/${name}_artefacts/Release/VST3/"*.vst3 "out-$name/"
@@ -48,3 +56,8 @@ jobs:
         with:
           name: WallChop-Mac
           path: out-WallChop
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WallChords-Mac
+          path: out-WallChords
