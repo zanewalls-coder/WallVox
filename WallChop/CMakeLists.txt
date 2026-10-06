@@ -1,0 +1,55 @@
+cmake_minimum_required(VERSION 3.22)
+project(WallChop VERSION 1.0.0 LANGUAGES C CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+include(FetchContent)
+FetchContent_Declare(JUCE
+    GIT_REPOSITORY https://github.com/juce-framework/JUCE.git
+    GIT_TAG 8.0.4
+    GIT_SHALLOW TRUE)
+FetchContent_MakeAvailable(JUCE)
+
+# Filled in automatically by the GitHub build so "Get More Presets" knows where to look
+set(WALLVOX_PRESET_INDEX_URL "" CACHE STRING "URL of the online presets/index.json")
+
+if(APPLE)
+    set(WALLVOX_FORMATS VST3 AU)
+else()
+    set(WALLVOX_FORMATS VST3)
+endif()
+
+juce_add_plugin(WallChop
+    COMPANY_NAME "WallVox"
+    PLUGIN_MANUFACTURER_CODE Wlvx
+    PLUGIN_CODE Wch1
+    FORMATS ${WALLVOX_FORMATS}
+    PRODUCT_NAME "Wall Chop"
+    IS_SYNTH FALSE
+    NEEDS_MIDI_INPUT FALSE
+    NEEDS_MIDI_OUTPUT FALSE
+    IS_MIDI_EFFECT FALSE
+    EDITOR_WANTS_KEYBOARD_FOCUS TRUE
+    COPY_PLUGIN_AFTER_BUILD FALSE
+    VST3_CATEGORIES Fx
+    AU_MAIN_TYPE kAudioUnitType_Effect)
+
+target_sources(WallChop PRIVATE
+    Source/PluginProcessor.cpp
+    Source/PluginEditor.cpp
+    Source/PresetManager.cpp)
+
+target_compile_definitions(WallChop PUBLIC
+    JUCE_WEB_BROWSER=0
+    JUCE_USE_CURL=0
+    JUCE_VST3_CAN_REPLACE_VST2=0
+    WALLVOX_PRESET_INDEX_URL="${WALLVOX_PRESET_INDEX_URL}")
+
+target_link_libraries(WallChop
+    PRIVATE
+        juce::juce_audio_processors
+        juce::juce_dsp
+    PUBLIC
+        juce::juce_recommended_config_flags
+        juce::juce_recommended_warning_flags)

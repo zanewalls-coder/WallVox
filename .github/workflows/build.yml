@@ -1,4 +1,4 @@
-name: Build WallVox
+name: Build WallVox + Wall Chop
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build (Apple Silicon + Intel)
+      - name: Build WallVox
         run: |
           cmake -B build -G Xcode \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
@@ -18,17 +18,33 @@ jobs:
             -DWALLVOX_PRESET_INDEX_URL="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/presets/index.json"
           cmake --build build --config Release -- -quiet
 
+      - name: Build Wall Chop
+        run: |
+          cmake -S WallChop -B build-chop -G Xcode \
+            -DFETCHCONTENT_SOURCE_DIR_JUCE="$PWD/build/_deps/juce-src" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DWALLVOX_PRESET_INDEX_URL="https://raw.githubusercontent.com/${{ github.repository }}/${{ github.ref_name }}/WallChop/presets/index.json"
+          cmake --build build-chop --config Release -- -quiet
+
       - name: Package
         run: |
-          mkdir -p out
-          cp -R build/WallVox_artefacts/Release/VST3/WallVox.vst3 out/
-          cp -R build/WallVox_artefacts/Release/AU/WallVox.component out/
-          codesign --force --deep -s - out/WallVox.vst3
-          codesign --force --deep -s - out/WallVox.component
-          cp install.command out/
-          chmod +x out/install.command
+          for pair in "build:WallVox" "build-chop:WallChop"; do
+            dir="${pair%%:*}"; name="${pair##*:}"
+            mkdir -p "out-$name"
+            cp -R "$dir/${name}_artefacts/Release/VST3/"*.vst3 "out-$name/"
+            cp -R "$dir/${name}_artefacts/Release/AU/"*.component "out-$name/"
+            for b in "out-$name"/*.vst3 "out-$name"/*.component; do codesign --force --deep -s - "$b"; done
+            cp install.command "out-$name/"
+            chmod +x "out-$name/install.command"
+          done
 
       - uses: actions/upload-artifact@v4
         with:
           name: WallVox-Mac
-          path: out
+          path: out-WallVox
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: WallChop-Mac
+          path: out-WallChop
