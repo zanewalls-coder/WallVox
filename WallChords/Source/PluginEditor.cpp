@@ -2,76 +2,12 @@
 
 namespace col
 {
-    const juce::Colour bg     (0xff15131b);
-    const juce::Colour panel  (0xff201d28);
-    const juce::Colour accent (0xffffb238);
-    const juce::Colour text   (0xfff1ece2);
-    const juce::Colour dim    (0xff9c95a8);
-    const juce::Colour secCols[] { juce::Colour (0xff3d5a80), juce::Colour (0xff6d597a), juce::Colour (0xffb56576),
-                                   juce::Colour (0xffe09f3e), juce::Colour (0xff2a9d8f), juce::Colour (0xff8d6a9f) };
-}
-
-// ------------------------------------------------------------------ look
-WallChordsLook::WallChordsLook()
-{
-    setColour (juce::ComboBox::backgroundColourId, col::panel.brighter (0.1f));
-    setColour (juce::ComboBox::outlineColourId, col::accent.withAlpha (0.35f));
-    setColour (juce::ComboBox::textColourId, col::text);
-    setColour (juce::ComboBox::arrowColourId, col::accent);
-    setColour (juce::PopupMenu::backgroundColourId, col::panel);
-    setColour (juce::PopupMenu::highlightedBackgroundColourId, col::accent);
-    setColour (juce::PopupMenu::highlightedTextColourId, juce::Colours::black);
-    setColour (juce::TextButton::buttonColourId, col::panel.brighter (0.1f));
-    setColour (juce::TextButton::buttonOnColourId, col::accent);
-    setColour (juce::TextButton::textColourOffId, col::text);
-    setColour (juce::TextButton::textColourOnId, juce::Colours::black);
-    setColour (juce::Label::textColourId, col::text);
-    setColour (juce::Slider::textBoxTextColourId, col::dim);
-    setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-}
-
-void WallChordsLook::drawRotarySlider (juce::Graphics& g, int x, int y, int w, int h, float pos, float a0, float a1, juce::Slider&)
-{
-    auto r = juce::Rectangle<float> ((float) x, (float) y, (float) w, (float) h).reduced (6.0f);
-    const float size = juce::jmin (r.getWidth(), r.getHeight());
-    r = r.withSizeKeepingCentre (size, size);
-    const auto c = r.getCentre();
-    const float rad = size * 0.5f, ang = a0 + pos * (a1 - a0);
-    juce::Path track, value;
-    track.addCentredArc (c.x, c.y, rad - 3, rad - 3, 0, a0, a1, true);
-    value.addCentredArc (c.x, c.y, rad - 3, rad - 3, 0, a0, ang, true);
-    const juce::PathStrokeType st (4.0f, juce::PathStrokeType::curved, juce::PathStrokeType::rounded);
-    g.setColour (col::panel.brighter (0.3f)); g.strokePath (track, st);
-    g.setColour (col::accent); g.strokePath (value, st);
-    g.setColour (col::panel.brighter (0.18f)); g.fillEllipse (r.reduced (9.0f));
-    juce::Path tick;
-    tick.addRoundedRectangle (-1.5f, -(rad - 11), 3.0f, rad * 0.45f, 1.5f);
-    g.setColour (col::text);
-    g.fillPath (tick, juce::AffineTransform::rotation (ang).translated (c));
-}
-
-void WallChordsLook::drawToggleButton (juce::Graphics& g, juce::ToggleButton& b, bool hover, bool)
-{
-    auto r = b.getLocalBounds().toFloat().reduced (2.0f);
-    const bool on = b.getToggleState();
-    const auto text = b.getButtonText();
-    if (text.isEmpty())
-    {
-        g.setColour (on ? col::accent : col::panel.brighter (0.3f));
-        g.fillRoundedRectangle (r, r.getHeight() * 0.5f);
-        g.setColour (on ? juce::Colours::black : col::dim);
-        g.setFont (juce::FontOptions (11.0f, juce::Font::bold));
-        g.drawText (on ? "ON" : "OFF", r, juce::Justification::centred);
-        return;
-    }
-    g.setColour (on ? col::accent.withAlpha (0.18f) : col::panel.brighter (hover ? 0.15f : 0.08f));
-    g.fillRoundedRectangle (r, 8.0f);
-    g.setColour (on ? col::accent : col::dim.withAlpha (0.5f));
-    g.drawRoundedRectangle (r, 8.0f, 1.2f);
-    g.fillEllipse (r.getX() + 10, r.getCentreY() - 5, 10, 10);
-    g.setColour (on ? col::text : col::dim);
-    g.setFont (juce::FontOptions (13.0f, juce::Font::bold));
-    g.drawText (text, r.withTrimmedLeft (28), juce::Justification::centredLeft);
+    const juce::Colour panel  = wl::c::panel;
+    const juce::Colour accent = chordsTheme.a;
+    const juce::Colour text   = wl::c::text;
+    const juce::Colour dim    = wl::c::dim;
+    // one colour per part in the note roll: chords, bass, lead, pad
+    const juce::Colour partCols[] { juce::Colour (0xffffb238), juce::Colour (0xffff5f3d), juce::Colour (0xffffe08a), juce::Colour (0xffc77dff) };
 }
 
 // ------------------------------------------------------------------ drag button
@@ -102,44 +38,78 @@ void DragButton::mouseUp (const juce::MouseEvent& e)
 }
 
 // ------------------------------------------------------------------ timeline
+void Timeline::renderRoll (juce::Rectangle<float> area)
+{
+    rollImage = juce::Image (juce::Image::ARGB, juce::jmax (1, getWidth()), juce::jmax (1, getHeight()), true);
+    if (song == nullptr || song->notes.empty()) return;
+    juce::Graphics g (rollImage);
+    int lo = 127, hi = 0;
+    for (auto& n : song->notes) { lo = juce::jmin (lo, n.pitch); hi = juce::jmax (hi, n.pitch); }
+    hi = juce::jmax (hi, lo + 12);
+    const float noteH = juce::jlimit (1.5f, 4.0f, area.getHeight() / (float) (hi - lo + 1));
+    for (int pass = 0; pass < 2; ++pass)
+        for (auto& n : song->notes)
+        {
+            const float x0 = area.getX() + (float) (n.beat / song->length) * area.getWidth();
+            const float x1 = area.getX() + (float) ((n.beat + n.len) / song->length) * area.getWidth();
+            const float y = area.getBottom() - (float) (n.pitch - lo) / (float) (hi - lo) * (area.getHeight() - noteH) - noteH;
+            const auto c = col::partCols[n.part].withAlpha (pass == 0 ? 0.12f : 0.35f + 0.6f * n.vel / 127.0f);
+            g.setColour (c);
+            if (pass == 0) g.fillRoundedRectangle (x0 - 1.5f, y - 2.5f, juce::jmax (2.0f, x1 - x0) + 3.0f, noteH + 5.0f, 2.0f);
+            else g.fillRect (x0, y, juce::jmax (1.0f, x1 - x0 - 0.5f), noteH);
+        }
+}
+
 void Timeline::paint (juce::Graphics& g)
 {
     auto r = getLocalBounds().toFloat();
-    g.setColour (col::panel);
-    g.fillRoundedRectangle (r, 10.0f);
+    g.setGradientFill (juce::ColourGradient (juce::Colour (0xff0d0f1c), r.getX(), r.getY(), juce::Colour (0xff171a2e), r.getX(), r.getBottom(), false));
+    g.fillRoundedRectangle (r, 14.0f);
+    g.setColour (wl::c::line);
+    g.drawRoundedRectangle (r.reduced (0.5f), 14.0f, 1.0f);
     if (song == nullptr || song->length <= 0.0) return;
 
-    auto area = r.reduced (10.0f);
-    const float secH = 26.0f;
+    auto area = r.reduced (14.0f, 12.0f);
+    const float secH = 24.0f, chordH = 20.0f;
     auto xOf = [&] (double beat) { return area.getX() + (float) (beat / song->length) * area.getWidth(); };
 
+    // section chips
     for (size_t i = 0; i < song->sections.size(); ++i)
     {
         const auto& s = song->sections[i];
-        juce::Rectangle<float> box (xOf (s.start), area.getY(), xOf (s.start + s.len) - xOf (s.start) - 2.0f, secH);
-        g.setColour (col::secCols[i % 6].withAlpha (0.85f));
-        g.fillRoundedRectangle (box, 5.0f);
+        juce::Rectangle<float> box (xOf (s.start), area.getY(), xOf (s.start + s.len) - xOf (s.start) - 3.0f, secH);
+        g.setColour (wl::c::panelHi);
+        g.fillRoundedRectangle (box, 6.0f);
+        g.setGradientFill (wl::grad (chordsTheme, box.getTopLeft(), box.getTopRight()));
+        g.fillRoundedRectangle (box.removeFromBottom (2.5f), 1.2f);
         g.setColour (col::text);
-        g.setFont (juce::FontOptions (12.0f, juce::Font::bold));
-        g.drawFittedText (s.name + "  " + juce::String ((int) (s.len / 4)) + " bars", box.toNearestInt().reduced (4, 0), juce::Justification::centredLeft, 1);
+        g.setFont (juce::FontOptions (11.5f, juce::Font::bold));
+        g.drawFittedText (s.name.toUpperCase() + "  " + juce::String ((int) (s.len / 4)),
+                          juce::Rectangle<float> (xOf (s.start), area.getY(), box.getWidth(), secH - 2).toNearestInt().reduced (6, 0),
+                          juce::Justification::centredLeft, 1);
     }
 
+    // note roll
+    auto roll = area.withTrimmedTop (secH + 6).withTrimmedBottom (chordH + 6);
+    if (! rollImage.isValid()) renderRoll (roll);
+    g.drawImageAt (rollImage, 0, 0);
+
     // chord lane
-    const float laneY = area.getY() + secH + 8.0f, laneH = area.getBottom() - laneY;
-    g.setFont (juce::FontOptions (11.5f));
+    auto lane = area.removeFromBottom (chordH);
+    g.setFont (juce::FontOptions (11.5f, juce::Font::bold));
     float lastTextEnd = -1.0f;
     for (const auto& sl : song->slots)
     {
         const float x0 = xOf (sl.start), x1 = xOf (sl.start + sl.len);
-        g.setColour (col::panel.brighter (0.12f));
-        g.fillRect (x0, laneY, juce::jmax (1.0f, x1 - x0 - 1.0f), laneH);
+        g.setColour (wl::c::panel);
+        g.fillRoundedRectangle (x0, lane.getY(), juce::jmax (1.0f, x1 - x0 - 1.5f), lane.getHeight(), 3.0f);
         if (x0 >= lastTextEnd)
         {
-            const float tw = juce::GlyphArrangement::getStringWidth (g.getCurrentFont(), sl.chord.name) + 6.0f;
-            if (tw < (x1 - x0) * 2.2f)
+            const float tw = juce::GlyphArrangement::getStringWidth (g.getCurrentFont(), sl.chord.name) + 8.0f;
+            if (tw < (x1 - x0) * 2.4f)
             {
-                g.setColour (col::text.withAlpha (0.9f));
-                g.drawText (sl.chord.name, juce::Rectangle<float> (x0 + 3, laneY, tw, laneH), juce::Justification::centredLeft);
+                g.setColour (col::text.withAlpha (0.92f));
+                g.drawText (sl.chord.name, juce::Rectangle<float> (x0 + 4, lane.getY(), tw, lane.getHeight()), juce::Justification::centredLeft);
                 lastTextEnd = x0 + tw;
             }
         }
@@ -148,8 +118,11 @@ void Timeline::paint (juce::Graphics& g)
     const double ph = proc.getPlayhead();
     if (ph >= 0.0)
     {
-        g.setColour (col::accent);
-        g.fillRect (xOf (ph) - 1.0f, area.getY() - 4.0f, 2.0f, area.getHeight() + 8.0f);
+        const float x = xOf (ph);
+        g.setColour (chordsTheme.a.withAlpha (0.18f));
+        g.fillRect (x - 6.0f, area.getY() - 4.0f, 12.0f, r.getHeight() - 16.0f);
+        g.setColour (chordsTheme.a);
+        g.fillRect (x - 1.0f, area.getY() - 4.0f, 2.0f, r.getHeight() - 16.0f);
     }
 }
 
@@ -261,11 +234,28 @@ WallChordsEditor::WallChordsEditor (WallChordsProcessor& p) : AudioProcessorEdit
     addAndMakeVisible (hint);
     liveChord.setFont (juce::FontOptions (20.0f, juce::Font::bold));
     liveChord.setColour (juce::Label::textColourId, col::accent);
-    liveChord.setJustificationType (juce::Justification::centredRight);
+    liveChord.setJustificationType (juce::Justification::centred);
+    
     addAndMakeVisible (liveChord);
 
-    setSize (1180, 620);
+    setSize (1180, 644);
     startTimerHz (30);
+
+   #if WALL_SNAPSHOT
+    juce::Timer::callAfterDelay (2500, [safe = juce::Component::SafePointer<juce::Component> (this)]
+    {
+        if (safe == nullptr) return;
+        const auto img = safe->createComponentSnapshot (safe->getLocalBounds(), true, 1.0f);
+        auto dir = juce::File (juce::SystemStats::getEnvironmentVariable ("WALL_SNAPSHOT_DIR", "/tmp"));
+        dir.createDirectory();
+        auto f = dir.getChildFile (juce::String (JucePlugin_Name).removeCharacters (" ") + ".png");
+        f.deleteFile();
+        juce::FileOutputStream os (f);
+        juce::PNGImageFormat().writeImageToStream (img, os);
+        os.flush();
+        juce::JUCEApplicationBase::quit();
+    });
+   #endif
 }
 
 WallChordsEditor::~WallChordsEditor() { stopTimer(); setLookAndFeel (nullptr); }
@@ -301,7 +291,7 @@ void WallChordsEditor::timerCallback()
     previewBtn.setToggleState (proc.isPreviewing(), juce::dontSendNotification);
 
     auto s = proc.getSong();
-    if (s != shownSong) { shownSong = s; timeline.song = s; }
+    if (s != shownSong) { shownSong = s; timeline.setSong (s); }
     timeline.repaint();
 
     const bool live = proc.apvts.getRawParameterValue ("liveMode")->load() > 0.5f;
@@ -310,66 +300,56 @@ void WallChordsEditor::timerCallback()
 
 void WallChordsEditor::paint (juce::Graphics& g)
 {
-    g.fillAll (col::bg);
-    g.setColour (col::text);
-    g.setFont (juce::FontOptions (30.0f, juce::Font::bold));
-    g.drawText ("WALL", 24, 16, 90, 40, juce::Justification::centredLeft);
-    g.setColour (col::accent);
-    g.drawText ("CHORDS", 106, 16, 160, 40, juce::Justification::centredLeft);
-
-    g.setColour (col::panel);
-    g.fillRoundedRectangle (juce::Rectangle<float> (16, 316, 690, 236), 10.0f);
-    g.fillRoundedRectangle (juce::Rectangle<float> (718, 316, 446, 236), 10.0f);
-    g.setColour (col::accent);
-    g.setFont (juce::FontOptions (12.0f, juce::Font::bold));
-    g.drawText ("PARTS", 32, 322, 200, 22, juce::Justification::centredLeft);
-    g.drawText ("FEEL", 734, 322, 200, 22, juce::Justification::centredLeft);
+    wl::drawBackground (g, getLocalBounds(), 56.0f, chordsTheme, "WALL", "CHORDS");
+    wl::drawPanel (g, juce::Rectangle<float> (16, 352, 690, 236), "PARTS", true, chordsTheme, 32.0f, 16.0f);
+    wl::drawPanel (g, juce::Rectangle<float> (718, 352, (float) getWidth() - 734, 236), "FEEL", true, chordsTheme, 32.0f, 16.0f);
 }
 
 void WallChordsEditor::resized()
 {
-    // header
-    generateBtn.setBounds (getWidth() - 176, 18, 160, 38);
-    previewBtn.setBounds (getWidth() - 308, 18, 120, 38);
-    for (int i = 0; i < 3; ++i) genreBtn[i].setBounds (290 + i * 120, 18, 112, 38);
+    // header: genre tabs in the middle, actions on the right
+    generateBtn.setBounds (getWidth() - 146, 11, 130, 34);
+    previewBtn.setBounds (getWidth() - 256, 11, 102, 34);
+    for (int i = 0; i < 3; ++i) genreBtn[i].setBounds (250 + i * 112, 11, 106, 34);
+    liveChord.setBounds (590, 11, getWidth() - 256 - 600, 34);
 
     // settings row
     int x = 16;
-    const int widths[5] = { 110, 110, 150, 90, 150 };
+    const int widths[5] = { 104, 104, 140, 84, 140 };
     for (size_t i = 0; i < combos.size(); ++i)
     {
-        comboLabels[i]->setBounds (x, 72, widths[i], 18);
-        combos[i]->setBounds (x, 92, widths[i], 30);
+        comboLabels[i]->setBounds (x, 66, widths[i], 18);
+        combos[i]->setBounds (x, 86, widths[i], 30);
         x += widths[i] + 10;
     }
-    progLabel.setBounds (x, 72, 200, 18);
-    progBox.setBounds (x, 92, getWidth() - 16 - x, 30);
+    progLabel.setBounds (x, 66, 200, 18);
+    progBox.setBounds (x, 86, getWidth() - 16 - x, 30);
 
-    timeline.setBounds (16, 138, getWidth() - 32, 164);
-    liveChord.setBounds (650, 18, getWidth() - 316 - 650, 38);
+    timeline.setBounds (16, 130, getWidth() - 32, 208);
 
     // parts
     for (int i = 0; i < 4; ++i)
     {
-        const int y = 350 + i * 44;
-        partOn[i].setBounds (30, y + 6, 46, 24);
-        partLabel[i].setBounds (86, y, 110, 36);
-        partStyle[i].setBounds (200, y + 3, 300, 30);
-        drag[i]->setBounds (512, y + 3, 180, 30);
+        const int y = 394 + i * 44;
+        partOn[i].setBounds (28, y + 6, 24, 24);
+        partLabel[i].setBounds (62, y, 120, 36);
+        partStyle[i].setBounds (186, y + 3, 312, 30);
+        drag[i]->setBounds (510, y + 3, 182, 30);
     }
-    dragAll.setBounds (512, 350 + 4 * 44 + 4, 180, 32);
+    dragAll.setBounds (510, 394 + 4 * 44 - 2, 182, 30);
 
     // feel knobs
+    const int kw = (getWidth() - 734 - 16) / 4;
     for (int i = 0; i < 7; ++i)
     {
-        const int col = i % 4, row = i / 4;
-        knobLabels[i].setBounds (730 + col * 106, 348 + row * 100, 100, 16);
-        knobs[i].setBounds (730 + col * 106, 364 + row * 100, 100, 80);
+        const int cx = 726 + (i % 4) * kw, cy = 392 + (i / 4) * 96;
+        knobs[i].setBounds (cx, cy, kw, 74);
+        knobLabels[i].setBounds (cx, cy + 74, kw, 16);
     }
 
-    // bottom
-    followDaw.setBounds (16, 566, 170, 36);
-    sound.setBounds (194, 566, 170, 36);
-    liveMode.setBounds (372, 566, 290, 36);
-    hint.setBounds (674, 566, getWidth() - 690, 36);
+    // footer
+    followDaw.setBounds (16, 600, 170, 32);
+    sound.setBounds (194, 600, 170, 32);
+    liveMode.setBounds (372, 600, 300, 32);
+    hint.setBounds (680, 600, getWidth() - 696, 32);
 }

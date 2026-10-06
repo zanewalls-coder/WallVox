@@ -198,6 +198,7 @@ public:
     }
 
     int getLatency() const { return shifter.getLatency(); }
+    int getTargetNote() const { return current; }
 
     void setParams (float amountIn, float retuneMs, int keyIn, int scaleIn)
     {

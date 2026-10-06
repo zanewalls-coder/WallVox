@@ -119,6 +119,7 @@ void WallVoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     const int nc = juce::jmin (2, getTotalNumOutputChannels(), buffer.getNumChannels());
     if (nc == 0 || n == 0) return;
     float* const* ch = buffer.getArrayOfWritePointers();
+    const float inPeak = wl::peakOf (buffer, nc);
 
     updateFilters();
     auto on = [this] (const char* id) { return p (id) > 0.5f; };
@@ -271,6 +272,8 @@ void WallVoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::Mid
     juce::dsp::AudioBlock<float> block (buffer);
     auto sub = block.getSubsetChannelBlock (0, (size_t) nc);
     limiter.process (juce::dsp::ProcessContextReplacing<float> (sub));
+    scope.push (inPeak, wl::peakOf (buffer, nc));
+    scope.note = tuner.getTargetNote();
 }
 
 void WallVoxProcessor::getStateInformation (juce::MemoryBlock& dest)

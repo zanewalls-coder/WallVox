@@ -4,7 +4,35 @@ on:
   push:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
+  snapshots:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build standalone apps and capture UI screenshots
+        run: |
+          mkdir -p snaps
+          for pair in ".:WallVox:WallVox" "WallChop:WallChop:Wall Chop" "WallChords:WallChords:Wall Chords"; do
+            src="${pair%%:*}"; rest="${pair#*:}"; tgt="${rest%%:*}"; prod="${rest#*:}"
+            extra=""
+            [ -d snap-WallVox/_deps/juce-src ] && extra="-DFETCHCONTENT_SOURCE_DIR_JUCE=$PWD/snap-WallVox/_deps/juce-src"
+            cmake -S "$src" -B "snap-$tgt" -DCMAKE_BUILD_TYPE=Release -DWALL_SNAPSHOT=ON $extra > /dev/null
+            cmake --build "snap-$tgt" --target "${tgt}_Standalone" -j 4 > "snap-$tgt.log" 2>&1 || { tail -40 "snap-$tgt.log"; exit 1; }
+            WALL_SNAPSHOT_DIR="$PWD/snaps" timeout 90 "snap-$tgt/${tgt}_artefacts/Release/Standalone/$prod.app/Contents/MacOS/$prod" || true
+          done
+          ls -la snaps
+      - name: Publish screenshots to the ui-snapshots branch
+        run: |
+          cd snaps
+          git init -q -b ui-snapshots
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add . && git commit -q -m "UI snapshots for ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}" ui-snapshots
+
   mac:
     runs-on: macos-latest
     steps:

@@ -1,13 +1,8 @@
 #pragma once
 #include "PluginProcessor.h"
+#include "WallLook.h"
 
-class WallChordsLook : public juce::LookAndFeel_V4
-{
-public:
-    WallChordsLook();
-    void drawRotarySlider (juce::Graphics&, int, int, int, int, float, float, float, juce::Slider&) override;
-    void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool, bool) override;
-};
+inline const wl::Theme chordsTheme { juce::Colour (0xffffb238), juce::Colour (0xffff5f3d) };
 
 // A button you can drag straight into Logic / Ableton as a MIDI clip (click = save to a folder)
 class DragButton : public juce::TextButton
@@ -28,9 +23,13 @@ public:
     explicit Timeline (WallChordsProcessor& p) : proc (p) {}
     void paint (juce::Graphics&) override;
     void mouseDown (const juce::MouseEvent&) override;
+    void resized() override { rollImage = {}; }
+    void setSong (std::shared_ptr<const eng::Song> s) { song = std::move (s); rollImage = {}; }
     std::shared_ptr<const eng::Song> song;
 private:
+    void renderRoll (juce::Rectangle<float> area);
     WallChordsProcessor& proc;
+    juce::Image rollImage;
 };
 
 class WallChordsEditor : public juce::AudioProcessorEditor, private juce::Timer
@@ -51,7 +50,7 @@ private:
     using BA  = juce::AudioProcessorValueTreeState::ButtonAttachment;
 
     WallChordsProcessor& proc;
-    WallChordsLook look;
+    wl::Look look { chordsTheme };
 
     juce::TextButton genreBtn[3];
     juce::TextButton generateBtn { "NEW IDEA" }, previewBtn { "PREVIEW" };

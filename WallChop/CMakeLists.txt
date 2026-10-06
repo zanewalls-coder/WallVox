@@ -20,6 +20,11 @@ else()
     set(WALLVOX_FORMATS VST3)
 endif()
 
+option(WALL_SNAPSHOT "Build a standalone app that saves a UI screenshot" OFF)
+if(WALL_SNAPSHOT)
+    list(APPEND WALLVOX_FORMATS Standalone)
+endif()
+
 juce_add_plugin(WallChop
     COMPANY_NAME "WallVox"
     PLUGIN_MANUFACTURER_CODE Wlvx
@@ -40,7 +45,10 @@ target_sources(WallChop PRIVATE
     Source/PluginEditor.cpp
     Source/PresetManager.cpp)
 
+target_include_directories(WallChop PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../Shared")
+
 target_compile_definitions(WallChop PUBLIC
+    WALL_SNAPSHOT=$<BOOL:${WALL_SNAPSHOT}>
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
     JUCE_VST3_CAN_REPLACE_VST2=0
@@ -50,6 +58,7 @@ target_link_libraries(WallChop
     PRIVATE
         juce::juce_audio_processors
         juce::juce_dsp
+        juce::juce_audio_utils
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags)

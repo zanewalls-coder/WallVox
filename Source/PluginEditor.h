@@ -1,14 +1,6 @@
 #pragma once
 #include "PluginProcessor.h"
-
-class WallVoxLook : public juce::LookAndFeel_V4
-{
-public:
-    WallVoxLook();
-    void drawRotarySlider (juce::Graphics&, int x, int y, int w, int h, float pos,
-                           float start, float end, juce::Slider&) override;
-    void drawToggleButton (juce::Graphics&, juce::ToggleButton&, bool highlighted, bool down) override;
-};
+#include "WallLook.h"
 
 class WallVoxEditor : public juce::AudioProcessorEditor
 {
@@ -37,22 +29,28 @@ private:
         std::unique_ptr<juce::ToggleButton> toggle;
         std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> tAtt;
     };
-    void updateSectionDimming();
 
+    void updateSectionDimming();
     void rebuildPresetMenu();
+    void stepPreset (int delta);
     void savePreset();
     void importPreset();
     void getMorePresets();
+    bool sectionOn (const Section& s) const { return s.toggle == nullptr || s.toggle->getToggleState(); }
 
     WallVoxProcessor& proc;
-    WallVoxLook look;
+    wl::Look look;
     std::vector<Section> sections;
+    std::vector<std::vector<int>> rows;
     std::vector<std::unique_ptr<Control>> controls;
 
+    wl::Scope scope;
     juce::ComboBox presetBox;
-    juce::TextButton saveBtn { "Save" }, importBtn { "Import" }, moreBtn { "Get More Presets" };
+    juce::TextButton prevBtn { "<" }, nextBtn { ">" };
+    juce::TextButton saveBtn { "SAVE" }, importBtn { "IMPORT" }, moreBtn { "GET MORE" };
     juce::Label status;
     std::unique_ptr<juce::FileChooser> chooser;
+    juce::TooltipWindow tooltips { this, 600 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (WallVoxEditor)
 };

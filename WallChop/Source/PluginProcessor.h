@@ -2,6 +2,7 @@
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "ChopDSP.h"
 #include "PresetManager.h"
+#include "WallLook.h"
 
 class WallChopProcessor : public juce::AudioProcessor
 {
@@ -35,6 +36,7 @@ public:
 
     juce::AudioProcessorValueTreeState apvts;
     PresetManager presets;
+    wl::ScopeData scope;
 
 private:
     float p (const char* id) const { return apvts.getRawParameterValue (id)->load(); }
