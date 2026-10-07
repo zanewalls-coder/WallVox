@@ -408,9 +408,20 @@ void WallChordsEditor::paint (juce::Graphics& g)
     g.fillPath (dashed);
     g.setColour (dragOver ? col::text : col::dim);
     g.setFont (juce::FontOptions (13.0f, juce::Font::bold));
-    g.drawText ("Drop MIDI or audio loops here", hint.withTrimmedBottom (20), juce::Justification::centredBottom);
+    g.drawText ("Drop MIDI or audio loops here", hint.withY (hint.getY() + 12).withHeight (20), juce::Justification::centred);
     g.setFont (juce::FontOptions (11.5f));
-    g.drawText ("They're sorted into chords, melodies and bass", hint.withTrimmedTop (34), juce::Justification::centredTop);
+    g.drawText ("They're sorted into chords, melodies and bass", hint.withY (hint.getY() + 34).withHeight (18), juce::Justification::centred);
+
+    if (libItems.empty())
+    {
+        auto empty = libList.getBounds().toFloat().reduced (16, 30);
+        g.setColour (col::dim);
+        g.setFont (juce::FontOptions (13.0f));
+        g.drawFittedText ("Your library is empty.\n\nAdd chord loops, melodies and basslines you love (MIDI or audio). "
+                          "Wall Chords learns their progressions, rhythms and note choices, then writes new ideas in that style.\n\n"
+                          "Until then it uses the built-in styles.",
+                          empty.toNearestInt(), juce::Justification::centredTop, 12);
+    }
 }
 
 void WallChordsEditor::paintOverChildren (juce::Graphics& g)
