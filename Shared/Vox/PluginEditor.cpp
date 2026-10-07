@@ -65,7 +65,7 @@ void Tile::paint (juce::Graphics& g)
                       juce::Justification::centred, 1, 0.7f);
     g.setColour (wl::c::dim.withAlpha (0.8f));
     g.setFont (juce::FontOptions (10.5f));
-    g.drawText (juce::String (position + 1) + "  " + inf.group, getLocalBounds().withTrimmedLeft (34).withTrimmedRight (8).removeFromBottom (28),
+    g.drawText (juce::String (position + 1), getLocalBounds().withTrimmedLeft (34).withTrimmedRight (8).removeFromBottom (28),
                 juce::Justification::centredLeft);
 
     if (hover && ! dragging)
@@ -286,19 +286,29 @@ VoxEditor::VoxEditor (VoxProcessor& p)
     startTimerHz (30);
 
    #if WALL_SNAPSHOT
-    juce::Timer::callAfterDelay (2500, [safe = juce::Component::SafePointer<juce::Component> (this)]
+    // capture the tuner, EQ and compressor panels, then quit
+    auto shot = [] (juce::Component::SafePointer<VoxEditor> safe, int sel, juce::String suffix, bool quit)
     {
         if (safe == nullptr) return;
-        const auto img = safe->createComponentSnapshot (safe->getLocalBounds(), true, 1.0f);
-        auto dir = juce::File (juce::SystemStats::getEnvironmentVariable ("WALL_SNAPSHOT_DIR", "/tmp"));
-        dir.createDirectory();
-        auto f = dir.getChildFile (juce::String (JucePlugin_Name).removeCharacters (" ") + ".png");
-        f.deleteFile();
-        juce::FileOutputStream os (f);
-        juce::PNGImageFormat().writeImageToStream (img, os);
-        os.flush();
-        juce::JUCEApplicationBase::quit();
-    });
+        safe->select (sel);
+        juce::Timer::callAfterDelay (400, [safe, suffix, quit]
+        {
+            if (safe == nullptr) return;
+            const auto img = safe->createComponentSnapshot (safe->getLocalBounds(), true, 1.0f);
+            auto dir = juce::File (juce::SystemStats::getEnvironmentVariable ("WALL_SNAPSHOT_DIR", "/tmp"));
+            dir.createDirectory();
+            auto f = dir.getChildFile (juce::String (JucePlugin_Name).removeCharacters (" ") + suffix + ".png");
+            f.deleteFile();
+            juce::FileOutputStream os (f);
+            juce::PNGImageFormat().writeImageToStream (img, os);
+            os.flush();
+            if (quit) juce::JUCEApplicationBase::quit();
+        });
+    };
+    juce::Component::SafePointer<VoxEditor> me (this);
+    juce::Timer::callAfterDelay (2000, [shot, me] { shot (me, 0, "", false); });
+    juce::Timer::callAfterDelay (3000, [shot, me] { shot (me, 1, "_eq", false); });
+    juce::Timer::callAfterDelay (4000, [shot, me] { shot (me, 2, "_comp", true); });
    #endif
 }
 
@@ -498,6 +508,9 @@ void VoxEditor::rebuildPanel()
             ctl.slider = std::make_unique<juce::Slider> (juce::Slider::RotaryHorizontalVerticalDrag, juce::Slider::TextBoxBelow);
             ctl.slider->setTextBoxStyle (juce::Slider::TextBoxBelow, false, 84, 16);
             ctl.slider->setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+            addAndMakeVisible (*ctl.slider);
+            ctl.att = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (proc.apvts, chain::paramId (panelSlot, k), *ctl.slider);
+            // set after attaching: the attachment installs the host's generic text functions
             ctl.slider->textFromValueFunction = [spec] (double v) { return spec.text (spec.toValue ((float) v)); };
             ctl.slider->valueFromTextFunction = [spec] (const juce::String& t)
             {
@@ -506,8 +519,6 @@ void VoxEditor::rebuildPanel()
                 if (juce::String (spec.unit) == "%") v /= 100.0f;
                 return (double) spec.toNorm (v);
             };
-            addAndMakeVisible (*ctl.slider);
-            ctl.att = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment> (proc.apvts, chain::paramId (panelSlot, k), *ctl.slider);
             ctl.slider->setDoubleClickReturnValue (true, spec.toNorm (spec.def));
             ctl.slider->updateText();
         }
@@ -691,11 +702,12 @@ void VoxEditor::resized()
     if (n == 0) return;
     const int cols = n <= 5 ? n : (n <= 6 ? 3 : 4);
     const int rows = (n + cols - 1) / cols;
-    const int cw = juce::jmin (150, body.getWidth() / cols), ch = body.getHeight() / rows;
+    const int cw = juce::jmin (150, body.getWidth() / cols), ch = juce::jmin (160, body.getHeight() / rows);
+    const int top = body.getY() + (body.getHeight() - ch * rows) / 2;
     for (int i = 0; i < n; ++i)
     {
         auto& ctl = controls[(size_t) i];
-        auto cell = juce::Rectangle<int> (body.getX() + (i % cols) * cw, body.getY() + (i / cols) * ch, cw, ch).reduced (6, 2);
+        auto cell = juce::Rectangle<int> (body.getX() + (i % cols) * cw, top + (i / cols) * ch, cw, ch).reduced (6, 2);
         ctl.label->setBounds (cell.removeFromBottom (18));
         if (ctl.slider)
         {
