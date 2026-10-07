@@ -406,7 +406,8 @@ void Card::paint (juce::Graphics& g)
     g.fillRoundedRectangle (strip.translated (10, 0), 3.0f);
 
     auto text = getLocalBounds().toFloat().withTrimmedLeft (36).withTrimmedRight (330).reduced (0, 18);
-    g.setGradientFill (wl::grad (t, text.getTopLeft(), text.getTopLeft().translated (200, 0)));
+    // solid colour on purpose: on macOS a gradient-filled string containing a space floods the whole card
+    g.setColour (info.colour.brighter (0.15f));
     g.setFont (juce::FontOptions (24.0f, juce::Font::bold));
     g.drawText (info.name, text.removeFromTop (30), juce::Justification::centredLeft);
     g.setColour (wl::c::text.withAlpha (0.85f));
