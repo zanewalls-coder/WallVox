@@ -27,8 +27,8 @@ INSTRUMENTS = [
          layers=[(["v2", "v1"], 0, 127)], max_sec=2.5, release=0.2, section_ranges=[(0, 59), (60, 127)]),
     dict(name="harp", title="Harp", dirs=[(VCSL, "Chordophones/Composite Chordophones/Concert Harp")],
          layers=[(["mf", "f"], 0, 95), (["f", "mf"], 96, 127)], max_sec=5.0, release=0.4),
-    dict(name="vibraphone", title="Vibraphone", dirs=[(VCSL, "Idiophones/Struck Idiophones/Vibraphone")],
-         layers=[([], 0, 127)], max_sec=5.0, release=0.4),
+    dict(name="vibraphone", title="Vibraphone", dirs=[(VCSL, "Idiophones/Struck Idiophones/Vibraphone/Soft Mallets")],
+         layers=[(["v2", "v1", "v3"], 0, 127)], max_sec=5.0, release=0.4),
     dict(name="organ", title="Organ", dirs=[(VSCO, "Keys/Organ/Loud")],
          layers=[([], 0, 127)], max_sec=6.0, loop=True, attack=0.01, release=0.25),
     dict(name="upright_bass", title="Upright Bass", dirs=[(VSCO, "Strings/Solo Contrabass/Pizz")],
@@ -126,6 +126,9 @@ def build(spec):
 
     # pick one file per (root, layer)
     roots = sorted(set(i["root"] for i in infos))
+    if not roots:
+        print("  no usable samples - skipped (the plugin falls back to its synth for this one)")
+        return
     chosen = []
     for li, (tokens, vlo, vhi) in enumerate(spec["layers"]):
         for r in roots:
