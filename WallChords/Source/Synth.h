@@ -5,7 +5,7 @@
 // Small built-in sounds so you can audition the generated parts without routing anything.
 namespace ps
 {
-enum Timbre { Keys, Pluck, Saw, Bass, Lead, Pad };
+enum Timbre { Keys, Pluck, Saw, Bass, Lead, Pad, AcGuitar, ElGuitar, Sub };
 
 struct Shared { std::atomic<int> timbre { Keys }; float mod = 0.7f, expr = 1.0f; };
 
@@ -39,6 +39,8 @@ public:
         {
             case Keys:  a = { 0.002f, 1.6f, 0.25f, 0.35f }; break;
             case Pluck: a = { 0.001f, 0.1f, 1.0f, 0.15f }; break;
+            case AcGuitar: case ElGuitar: a = { 0.001f, 0.1f, 1.0f, 0.25f }; break;
+            case Sub:   a = { 0.005f, 0.3f, 0.9f, 0.08f }; break;
             case Saw:   a = { 0.003f, 0.35f, 0.45f, 0.18f }; break;
             case Bass:  a = { 0.004f, 0.4f, 0.8f, 0.08f }; break;
             case Lead:  a = { 0.004f, 0.25f, 0.7f, 0.15f }; break;
@@ -48,18 +50,27 @@ public:
         env.setParameters (a);
         env.noteOn();
 
-        if (timbre == Pluck)
+        if (timbre == Pluck || timbre == AcGuitar || timbre == ElGuitar)
         {
             ksLen = juce::jlimit (2, (int) ks.size() - 1, (int) std::round (sr / freq));
             float last = 0.0f;
             for (int i = 0; i < ksLen; ++i)
             {
                 const float noise = juce::Random::getSystemRandom().nextFloat() * 2.0f - 1.0f;
-                last += (noise - last) * (0.25f + 0.6f * vel);   // brighter when played harder
+                last += (noise - last) * (timbre == Pluck ? 0.25f + 0.6f * vel : 0.35f + 0.5f * vel);   // brighter when played harder
                 ks[(size_t) i] = last;
             }
+            // pick position: comb out some harmonics like a real string plucked near the bridge
+            if (timbre != Pluck)
+            {
+                const int pick = juce::jmax (1, ksLen / (timbre == AcGuitar ? 7 : 5));
+                for (int i = ksLen - 1; i >= pick; --i) ks[(size_t) i] -= 0.6f * ks[(size_t) (i - pick)];
+            }
             ksPos = 0;
-            ksDamp = 0.9985f - (float) juce::jlimit (0.0, 0.02, freq / 60000.0);
+            ksDamp = (timbre == Pluck ? 0.9985f : timbre == AcGuitar ? 0.9994f : 0.9996f) - (float) juce::jlimit (0.0, 0.02, freq / 60000.0);
+            body1.setCoefficients (juce::IIRCoefficients::makePeakFilter (sr, timbre == AcGuitar ? 110.0 : 300.0, 1.2, 2.0f));
+            body2.setCoefficients (juce::IIRCoefficients::makePeakFilter (sr, timbre == AcGuitar ? 230.0 : 2400.0, 1.5, 1.8f));
+            body1.reset(); body2.reset();
         }
     }
 
@@ -91,15 +102,23 @@ public:
                     modPhase += inc; modPhase -= std::floor (modPhase);
                     break;
                 }
-                case Pluck:
+                case Pluck: case AcGuitar: case ElGuitar:
                 {
                     const int nxt = (ksPos + 1) % ksLen;
                     const float y = 0.5f * (ks[(size_t) ksPos] + ks[(size_t) nxt]) * ksDamp;
                     s = ks[(size_t) ksPos] * env.getNextSample() * 0.8f;
                     ks[(size_t) ksPos] = y;
                     ksPos = nxt;
+                    if (timbre != Pluck)
+                    {
+                        s = body2.processSingleSampleRaw (body1.processSingleSampleRaw (s));
+                        if (timbre == ElGuitar) s = std::tanh (s * 1.6f) * 0.7f;
+                    }
                     break;
                 }
+                case Sub:
+                    s = (float) std::sin (phase * juce::MathConstants<double>::twoPi) * 0.6f * env.getNextSample();
+                    break;
                 case Bass:
                 {
                     const float sine = (float) std::sin (phase * juce::MathConstants<double>::twoPi);
@@ -109,7 +128,7 @@ public:
                 default:
                 {
                     // detuned saws through a soft low-pass
-                    const int voices = timbre == Lead ? 2 : 3;
+                    const int voices = timbre == Lead ? 2 : 3;   // (kept light so many notes stay cheap)
                     float acc = 0.0f;
                     for (int v = 0; v < voices; ++v)
                     {
@@ -145,6 +164,7 @@ private:
 
     Shared& shared;
     juce::ADSR env;
+    juce::IIRFilter body1, body2;
     double sr = 44100, freq = 440, phase = 0, modPhase = 0, ph[3] {};
     float velocity = 1, lp = 0, smoothMod = 0.7f, smoothExpr = 1.0f, ksDamp = 0.996f;
     int timbre = Keys, ksLen = 100, ksPos = 0;

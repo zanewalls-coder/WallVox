@@ -450,7 +450,7 @@ void Performer::pad (const std::vector<int>& v, int style, double start, double 
 }
 
 // ---------------------------------------------------------------- lead melody
-static void generateLead (Performer& P, const std::vector<Slot>& slots, size_t s0, size_t s1, int style,
+void generateLead (Performer& P, const std::vector<Slot>& slots, size_t s0, size_t s1, int style,
                           int genre, double secStart, double secEnd, float e0, float e1,
                           juce::Random& rng, int key, bool minor)
 {

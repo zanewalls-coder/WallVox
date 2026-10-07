@@ -39,6 +39,9 @@ juce_add_plugin(WallChords
 
 target_sources(WallChords PRIVATE
     Source/Engine.cpp
+    Source/Library.cpp
+    Source/Learn.cpp
+    Source/Sampler.cpp
     Source/PluginProcessor.cpp
     Source/PluginEditor.cpp)
 
@@ -54,6 +57,7 @@ target_link_libraries(WallChords
     PRIVATE
         juce::juce_audio_processors
         juce::juce_audio_utils
+        juce::juce_dsp
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_warning_flags)

@@ -75,6 +75,9 @@ int autoLeadStyle (int genre);
 int autoPadStyle (int genre, const juce::String& section, float e, bool build);
 
 std::shared_ptr<Song> generate (const Settings&);
+void generateLead (Performer& P, const std::vector<Slot>& slots, size_t s0, size_t s1, int style,
+                   int genre, double secStart, double secEnd, float e0, float e1,
+                   juce::Random& rng, int key, bool minor);
 void finalise (Song&);   // builds the sorted playback list
 
 } // namespace eng

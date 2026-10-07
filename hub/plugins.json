@@ -1,11 +1,54 @@
 [
-  { "id": "wallvox",    "name": "WallVox",     "tagline": "One-click vocal chains for pop, rap, EDM and worship",
-    "color": "#9b5cff", "src": ["Source", "CMakeLists.txt", "Shared"], "zip": "WallVox-Mac.zip",
-    "bundles": ["WallVox.component", "WallVox.vst3"], "presets": "presets/index.json", "presetDir": "WallVox" },
-  { "id": "wallchop",   "name": "Wall Chop",   "tagline": "Vocal chops: bender, stutter, gate, filter and tape stop",
-    "color": "#39ff14", "src": ["WallChop", "Shared"], "zip": "WallChop-Mac.zip",
-    "bundles": ["Wall Chop.component", "Wall Chop.vst3"], "presets": "WallChop/presets/index.json", "presetDir": "WallChop" },
-  { "id": "wallchords", "name": "Wall Chords", "tagline": "Genre-smart progressions with real strums, plucks and swells",
-    "color": "#ffb238", "src": ["WallChords", "Shared"], "zip": "WallChords-Mac.zip",
-    "bundles": ["Wall Chords.component", "Wall Chords.vst3"], "presets": "", "presetDir": "" }
+  {
+    "id": "wallvox",
+    "name": "WallVox",
+    "tagline": "One-click vocal chains for pop, rap, EDM and worship",
+    "color": "#9b5cff",
+    "src": [
+      "Source",
+      "CMakeLists.txt",
+      "Shared"
+    ],
+    "zip": "WallVox-Mac.zip",
+    "bundles": [
+      "WallVox.component",
+      "WallVox.vst3"
+    ],
+    "presets": "presets/index.json",
+    "presetDir": "WallVox"
+  },
+  {
+    "id": "wallchop",
+    "name": "Wall Chop",
+    "tagline": "Vocal chops: bender, stutter, gate, filter and tape stop",
+    "color": "#39ff14",
+    "src": [
+      "WallChop",
+      "Shared"
+    ],
+    "zip": "WallChop-Mac.zip",
+    "bundles": [
+      "Wall Chop.component",
+      "Wall Chop.vst3"
+    ],
+    "presets": "WallChop/presets/index.json",
+    "presetDir": "WallChop"
+  },
+  {
+    "id": "wallchords",
+    "name": "Wall Chords",
+    "tagline": "Learns from your MIDI & audio loops to write chords, melodies and bass",
+    "color": "#ffb238",
+    "src": [
+      "WallChords",
+      "Shared"
+    ],
+    "zip": "WallChords-Mac.zip",
+    "bundles": [
+      "Wall Chords.component",
+      "Wall Chords.vst3"
+    ],
+    "presets": "",
+    "presetDir": ""
+  }
 ]

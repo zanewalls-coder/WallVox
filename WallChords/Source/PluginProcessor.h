@@ -1,7 +1,7 @@
 #pragma once
 #include <juce_audio_processors/juce_audio_processors.h>
-#include "Engine.h"
-#include "Synth.h"
+#include "Learn.h"
+#include "Sampler.h"
 
 class WallChordsProcessor : public juce::AudioProcessor,
                             private juce::AsyncUpdater,
@@ -30,45 +30,60 @@ public:
     void getStateInformation (juce::MemoryBlock&) override;
     void setStateInformation (const void*, int) override;
 
-    // ---- used by the editor (message thread)
+    // ---- editor API (message thread)
     juce::AudioProcessorValueTreeState apvts;
-    std::shared_ptr<const eng::Song> getSong() const;
+    lib::Library library;
+    std::shared_ptr<const gen::Loop> getLoop() const;
     void newIdea();
-    int getSeed() const { return seed.load(); }
+    void stepHistory (int delta);
+    juce::String historyLabel() const;
+    void regenerate();
+    void addToLibrary (const juce::StringArray& paths);
     juce::File writeMidiFile (int partMask);
-    void startPreview (double fromBeat);
-    void stopPreview();
+    void startPreview() { previewRestart = true; preview = true; }
+    void stopPreview() { preview = false; }
     bool isPreviewing() const { return preview.load(); }
     double getPlayhead() const { return playhead.load(); }
     juce::String getLiveChordName() const;
+    int instrumentParamIndex() const;          // instrument for the current mode
+    juce::String instrumentParamId() const;
+    void refreshInstruments();
+    void downloadSoundPack (std::function<void (juce::String)> done);
+    std::shared_ptr<std::atomic<float>> downloadProgress = std::make_shared<std::atomic<float>> (-1.0f);
 
 private:
     void handleAsyncUpdate() override { regenerate(); }
-    void parameterChanged (const juce::String&, float) override { triggerAsyncUpdate(); }
-    void regenerate();
-    eng::Settings currentSettings() const;
+    void parameterChanged (const juce::String&, float) override;
     float p (const char* id) const { return apvts.getRawParameterValue (id)->load(); }
-    int timbreFor (int part) const;
+    gen::Settings currentSettings() const;
+    void loadInstrumentFor (smp::Player& player, int index);
 
     void schedule (const std::vector<eng::Ev>& evs, double loopLen, double pos, double len, int n, juce::MidiBuffer& out);
-    void allNotesOff (juce::MidiBuffer& out, int sampleOffset);
+    void allNotesOff (juce::MidiBuffer& out);
     void rebuildLive (double bpm);
 
-    std::shared_ptr<const eng::Song> song, audioSong;
-    std::vector<std::shared_ptr<const eng::Song>> retired;
-    juce::SpinLock songLock;
+    std::shared_ptr<std::atomic<bool>> alive = std::make_shared<std::atomic<bool>> (true);
+    std::shared_ptr<const gen::Loop> loop, audioLoop;
+    std::vector<std::shared_ptr<const gen::Loop>> retired;
+    juce::SpinLock loopLock;
 
+    std::vector<int> history;
+    int historyPos = 0;
     std::atomic<int> seed { 1 };
-    std::atomic<double> lastBpm { 120.0 }, playhead { -1.0 }, previewFrom { 0.0 };
+    std::atomic<double> lastBpm { 120.0 }, playhead { -1.0 };
     std::atomic<bool> preview { false }, previewRestart { false };
 
     double sr = 44100.0, previewBeat = 0.0, freeBeat = 0.0, expectedNext = -1.0;
     bool wasRunning = false;
     bool active[4][128] {};
-    ps::Synth synths[4];
+    smp::Player mainPlayer, backingPlayer;
     juce::MidiBuffer partMidi[4];
+    juce::AudioBuffer<float> backBuf;
+    juce::AudioFormatManager formats;
+    std::map<int, std::shared_ptr<const smp::Instrument>> loadedInstruments;
+    int mainInstrument = -1, backingInstrument = -1;
 
-    // live chord mode (audio thread)
+    // live chord mode
     bool held[128] {};
     bool heldChanged = false;
     std::vector<eng::NoteEv> liveNotes;

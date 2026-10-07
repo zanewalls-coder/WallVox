@@ -1,0 +1,50 @@
+name: Build Wall Chords sound pack
+
+on:
+  push:
+    branches: [main]
+    paths: ["hub/sounds/**", ".github/workflows/sounds.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tools
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg zip > /dev/null
+          pip install -q numpy soundfile
+
+      - name: Fetch only the needed public-domain samples (VCSL + VSCO 2 CE)
+        run: |
+          git clone -q --depth 1 --filter=blob:none --sparse https://github.com/sgossner/VCSL vcsl
+          git -C vcsl sparse-checkout set \
+            "Chordophones/Zithers/Grand Piano, Kawai/Sustains" \
+            "Electrophones/TX81Z/FM Piano" \
+            "Chordophones/Composite Chordophones/Concert Harp" \
+            "Idiophones/Struck Idiophones/Vibraphone"
+          git clone -q --depth 1 --filter=blob:none --sparse https://github.com/sgossner/VSCO-2-CE vsco
+          git -C vsco sparse-checkout set \
+            "Keys/Upright Nr1" "Keys/Organ/Loud" \
+            "Strings/Cello Section/susvib" "Strings/Viola Section/susvib" "Strings/Violin Section/susVib" \
+            "Strings/Cello Section/pizzT" "Strings/Violin Section/Pizz" "Strings/Solo Contrabass/Pizz"
+
+      - name: Build the pack
+        run: |
+          python hub/sounds/build_sounds.py vcsl vsco pack
+          (cd pack && zip -qr ../WallChords-Sounds.zip .)
+          ls -la WallChords-Sounds.zip
+          du -sh pack/*
+
+      - name: Publish to the "sounds" release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view sounds > /dev/null 2>&1 || gh release create sounds --title "Wall Chords sound pack" \
+            --notes "Real instrument samples for Wall Chords (from Versilian Studios' CC0 libraries). Downloaded automatically by the plugin."
+          gh release upload sounds WallChords-Sounds.zip --clobber
