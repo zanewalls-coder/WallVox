@@ -304,6 +304,12 @@ void VoxProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuf
 
     buffer.applyGain (juce::Decibels::decibelsToGain (p ("out")));
 
+    {   // a module changed its latency (e.g. Tune engine switch): tell the host from the message thread
+        int total = 0;
+        for (auto& m : owned) if (m) total += m->latency();
+        if (total != getLatencySamples() && ! isUpdatePending()) triggerAsyncUpdate();
+    }
+
     // transparent safety limiter at -0.3 dBFS
     const float ceiling = 0.966f, rel = std::exp (-1.0f / (0.08f * (float) sr));
     for (int i = 0; i < n; ++i)

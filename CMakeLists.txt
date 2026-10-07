@@ -53,7 +53,7 @@ juce_add_binary_data(WallVoxPresets
     SOURCES ${WALL_SHARED}/Vox/factory/vox/factory_presets.json)
 set_target_properties(WallVoxPresets PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-target_include_directories(WallVox PRIVATE "${WALL_SHARED}" "${WALL_SHARED}/Vox")
+target_include_directories(WallVox PRIVATE "${WALL_SHARED}" "${WALL_SHARED}/Vox" "${WALL_SHARED}/ThirdParty")
 
 target_compile_definitions(WallVox PUBLIC
     WALL_CHOP=0

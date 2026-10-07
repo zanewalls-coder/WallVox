@@ -53,7 +53,7 @@ juce_add_binary_data(WallChopPresets
     SOURCES ${WALL_SHARED}/Vox/factory/chop/factory_presets.json)
 set_target_properties(WallChopPresets PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
-target_include_directories(WallChop PRIVATE "${WALL_SHARED}" "${WALL_SHARED}/Vox")
+target_include_directories(WallChop PRIVATE "${WALL_SHARED}" "${WALL_SHARED}/Vox" "${WALL_SHARED}/ThirdParty")
 
 target_compile_definitions(WallChop PUBLIC
     WALL_CHOP=1

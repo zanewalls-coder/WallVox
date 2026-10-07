@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <array>
+#include "signalsmith-stretch.h"   // MIT licence, Signalsmith Audio (Shared/ThirdParty)
 
 // Pitch correction using pitch-synchronous overlap-add (TD-PSOLA).
 //  - The voice is cut into single cycles (aligned by correlation) and re-spaced: no comb/chorus smear,
@@ -28,11 +29,29 @@ public:
         sr = sampleRate;
         maxT = sr / minHz;
         D = (int) std::ceil (2.7 * maxT) + 16;        // look-ahead needed to place grains; reported to the host
+        {   // always configured (so switching engines never allocates)
+            // 90 ms analysis blocks: measured best on a real low male vocal (accuracy and smoothness)
+            const int block = (int) (sr * 0.09);
+            ss.configure (2, block, block / 4);
+            ss.setFormantFactor (1.0f, true);          // keep the singer's formants (no chipmunk / Darth Vader)
+            ss.reset();
+            Dstretch = std::max (ss.inputLatency() + ss.outputLatency(), (int) (0.035 * sr));
+            ssIn[0].assign (64, 0.0f); ssIn[1].assign (64, 0.0f); ssOut[0].assign (64, 0.0f); ssOut[1].assign (64, 0.0f);
+            wet = 0;
+        }
+        const int Dpsola = D;
+        if (engine == Engine::stretch) D = Dstretch;
         int size = 1;
-        while (size < D * 4 + (int) maxT * 8 + 8192) size <<= 1;
+        while (size < std::max (Dpsola, Dstretch) * 4 + (int) maxT * 8 + 8192) size <<= 1;
         mask = size - 1;
         for (auto& r : ring) r.assign ((size_t) size, 0.0f);
         mono.assign ((size_t) size, 0.0f);
+        shiftHist.assign ((size_t) size, 0.0f);
+            for (int c = 0; c < 2; ++c)
+            {
+                wetDelay[c].assign ((size_t) std::max (1, Dstretch - (ss.inputLatency() + ss.outputLatency()) + 1), 0.0f);
+                wdPos[c] = 0;
+            }
         marks.assign (256, 0.0); markV.assign (256, 0);
         for (auto& d : decisions) d = { -1.0e18, false };
         decHead = 0;
@@ -84,8 +103,14 @@ public:
     float detectedCents() const { return haveTrack ? (float) ((heardMidi - std::round (heardMidi)) * 100.0) : 0.0f; }
     int targetNote() const { return haveTrack ? current : -1; }
 
+    enum class Engine { psola, stretch };
+    Engine engine = Engine::stretch;
+    // Studio = Signalsmith Stretch (best quality, ~90 ms latency); Live = PSOLA (~40 ms, for monitoring)
+    void setEngine (Engine e) { if (e != engine) { engine = e; prepare (sr); } }
+
     void process (float* const* ch, int nch, int n, bool enabled)
     {
+        if (engine == Engine::stretch) { processStretch (ch, nch, n, enabled); return; }
         nch = std::min (nch, 2);
         for (int i = 0; i < n; ++i)
         {
@@ -136,7 +161,78 @@ public:
         }
     }
 
+    // Signalsmith Stretch engine: the same detection / breath protection / note logic as above drives a
+    // high-quality spectral pitch shifter with formant preservation. Non-notes play the original audio.
+    void processStretch (float* const* ch, int nch, int n, bool enabled)
+    {
+        nch = std::min (nch, 2);
+        int done = 0;
+        while (done < n)
+        {
+            const int k = std::min (n - done, 32);
+            for (int i = 0; i < k; ++i)
+            {
+                float m = 0;
+                for (int c = 0; c < nch; ++c) { ring[(size_t) c][(size_t) (t & mask)] = ch[c][done + i]; m += ch[c][done + i]; }
+                if (nch == 1) ring[1][(size_t) (t & mask)] = ch[0][done + i];
+                m /= (float) nch;
+                mono[(size_t) (t & mask)] = m;
+                ssIn[0][(size_t) i] = ring[0][(size_t) (t & mask)];
+                ssIn[1][(size_t) i] = ring[1][(size_t) (t & mask)];
+                pushDetector (m);
+                advanceMarks();
+                if (! voicedNow() && holdSamples > 0) --holdSamples;
+                else if (! voicedNow()) { centreTarget = 0; flattenTarget = 0; }
+                centreShift = centreTarget + (centreShift - centreTarget) * speedCoef;
+                flattenShift = flattenTarget + (flattenShift - flattenTarget) * 0.995;
+                shift = std::clamp (centreShift + flattenShift, -6.0, 6.0);
+                shiftHist[(size_t) (t & mask)] = (float) shift;
+                ++t;
+            }
+            // the block being analysed now is centred on (t - inputLatency); the correction for that audio
+            // was computed ~1.6 * maxT later (marks + smoothing lag; measured on a real vocal)
+            const int64_t centre = t - ss.inputLatency();
+            const bool v = voicedAt ((double) centre) && voicedDet;
+            gconf = v ? std::min (1.0f, gconf + (float) k / (float) (0.008 * sr)) : 0.0f;
+            const float sh = shiftHist[(size_t) ((centre + (int64_t) (1.6 * maxT)) & mask)];
+            ss.setTransposeSemitones (v ? sh * gconf : 0.0f, (float) (8000.0 / sr));
+            if (v) ss.setFormantBase ((float) (sr / Tmark));
+            float* in[2] = { ssIn[0].data(), ssIn[1].data() };
+            float* out[2] = { ssOut[0].data(), ssOut[1].data() };
+            ss.process (in, k, out, k);
+
+            for (int i = 0; i < k; ++i)
+            {
+                const int64_t tOut = t - k + i - D;               // input sample this output lines up with
+                const bool vOut = enabled && voicedAt ((double) tOut);
+                grainVoiced = vOut;
+                const float target = vOut ? 1.0f : 0.0f;
+                const float step = 1.0f / (float) (0.006 * sr);                 // 6 ms crossfade
+                wet = target > wet ? std::min (target, wet + step) : std::max (target, wet - step);
+                // stretch output delay is (inputLatency + outputLatency); line it up with dry at tOut
+                const int extra = D - (ss.inputLatency() + ss.outputLatency());
+                for (int c = 0; c < nch; ++c)
+                {
+                    const float dry = ring[(size_t) c][(size_t) (tOut & mask)];
+                    float w = ssOut[(size_t) c][(size_t) i];
+                    if (extra > 0) w = delayWet (c, w, extra);
+                    ch[c][done + i] = wet <= 0.0f ? dry : dry + wet * (w - dry);
+                }
+            }
+            done += k;
+        }
+    }
+
 private:
+    float delayWet (int c, float x, int extra)
+    {
+        auto& b = wetDelay[(size_t) c];
+        juce::ignoreUnused (extra);
+        b[(size_t) wdPos[c]] = x;
+        wdPos[c] = (wdPos[c] + 1) % (int) b.size();
+        return b[(size_t) wdPos[c]];
+    }
+
     bool voicedNow() const { return voicedDet; }
 
     float read (int c, double pos) const
@@ -469,6 +565,11 @@ private:
     float gconf = 0;
     bool grainVoiced = false;
     float lastAp = 1.0f, cycleSim = 1.0f;
+    signalsmith::stretch::SignalsmithStretch<float> ss;
+    std::vector<float> ssIn[2], ssOut[2], shiftHist, wetDelay[2];
+    int wdPos[2] {};
+    float wet = 0;
+    int Dstretch = 4000;
     int current = -1, key = 0, scale = 0;
     double fast = 0, mid = 0, slow = 0, heardMidi = 0, shift = 0;
     double centreShift = 0, centreTarget = 0, flattenShift = 0, flattenTarget = 0;

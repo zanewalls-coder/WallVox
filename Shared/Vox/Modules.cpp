@@ -64,11 +64,12 @@ const std::vector<ModuleInfo>& catalogue()
         std::vector<ModuleInfo> l;
         l.push_back ({ "empty", "Empty", "", "", 0xff444444, MeterNone, {} });
         l.push_back ({ "tune", "Tune", "Pitch",
-            "Pitch correction that shifts one voice cycle at a time, so it stays clean and natural. Speed 0 = hard tune. Natural keeps vibrato and slides.",
+            "Pitch correction that never touches breaths or air. Speed 0 = hard tune. Natural keeps vibrato and slides. Engine: Studio = best quality (Signalsmith Stretch, formant-preserving), Live = lower latency for monitoring while recording.",
             cPitch, MeterPitch, {
                 { "Speed", 0, 400, 30, 60, "ms", {} }, { "Amount", 0, 1, 1, 0, "%", {} },
                 { "Key", 0, 11, 0, 0, "", keys() }, { "Scale", 0, 5, 0, 0, "", tune::scaleNames },
-                { "Natural", 0, 1, 0.25f, 0, "%", {} } } });
+                { "Natural", 0, 1, 0.25f, 0, "%", {} },
+                { "Engine", 0, 1, 0, 0, "", { "Studio", "Live" } } } });
         l.push_back ({ "deess", "De-Esser", "Dynamics", "Tames harsh S, T and SH sounds. Split only turns down the highs; Wide turns down the whole voice.",
             cDyn, MeterGR, {
                 { "Frequency", 3000, 12000, 6500, 6000, "Hz", {} }, { "Threshold", -50, 0, -26, 0, "dB", {} },
@@ -302,6 +303,7 @@ public:
     bool handlesBypass() const override { return true; }
     void process (juce::AudioBuffer<float>& b, int nch, const Context&, const float* v, bool on) override
     {
+        tuner.setEngine (v[5] > 0.5f ? tune::Tuner::Engine::psola : tune::Tuner::Engine::stretch);
         tuner.setParams (v[0], v[1], (int) v[2], (int) v[3], v[4]);
         tuner.process (b.getArrayOfWritePointers(), nch, b.getNumSamples(), on);
         note = tuner.targetNote();
