@@ -4,12 +4,16 @@
 #include <cmath>
 #include <algorithm>
 #include <cstdint>
+#include <array>
 
 // Pitch correction using pitch-synchronous overlap-add (TD-PSOLA).
 //  - The voice is cut into single cycles (aligned by correlation) and re-spaced: no comb/chorus smear,
 //    formants stay where they are.
 //  - Everything always runs through the same engine (unvoiced sounds just pass with ratio 1), so there
 //    is never a dry/wet switch that could click.
+//  - Breaths, air puffs, pops and hiss are never tuned: the detector rejects hissy, rumbly, too-quiet or
+//    unsteady sound, a note must hold a steady pitch before it is tuned, and anything that isn't a note
+//    passes through bit-exact. Low-confidence cycles (fades, fry, rasp) hold the correction instead of chasing.
 //  - The target note is chosen from a smoothed pitch with hysteresis so vibrato and scoops don't make it
 //    flip between notes, and only the smoothed pitch is corrected (natural cycle-to-cycle variation stays).
 namespace tune
@@ -29,7 +33,9 @@ public:
         mask = size - 1;
         for (auto& r : ring) r.assign ((size_t) size, 0.0f);
         mono.assign ((size_t) size, 0.0f);
-        marks.assign (256, 0.0);
+        marks.assign (256, 0.0); markV.assign (256, 0);
+        for (auto& d : decisions) d = { -1.0e18, false };
+        decHead = 0;
         markHead = 0; markCount = 0;
 
         decim = std::max (1, (int) std::lround (sr / 22050.0));
@@ -43,7 +49,15 @@ public:
 
         t = 0;
         T = Tmark = sr / 150.0;
-        unvoicedP = 0.004 * sr;
+        unvoicedP = std::round (0.004 * sr);
+        auto hp = [&] (double fc, double q, Bq& b)
+        {
+            const double w = 2 * juce::MathConstants<double>::pi * fc / sr, al = std::sin (w) / (2 * q), cw = std::cos (w), a0 = 1 + al;
+            b = { (float) ((1 + cw) / 2 / a0), (float) (-(1 + cw) / a0), (float) ((1 + cw) / 2 / a0), (float) (-2 * cw / a0), (float) ((1 - al) / a0) };
+        };
+        hp (60.0, 0.707, rumble); hp (3000.0, 0.707, air);
+        eAll = eAir = 0; envCoef = (float) std::exp (-1.0 / (0.012 * sr));
+        voicedLevel = 0; confirm = 0;
         lastMark = 0;
         nextSynth = 0;
         voicedDet = false; unvoicedHops = 99; octaveVotes = 0;
@@ -139,6 +153,7 @@ private:
 
     void pushMark (double m)
     {
+        markV[markHead] = voicedDet ? 1 : 0;
         marks[markHead] = m;
         markHead = (markHead + 1) % marks.size();
         markCount = std::min (markCount + 1, marks.size());
@@ -193,19 +208,64 @@ private:
         const double s0 = score (c0 + bestK - 1), s2 = score (c0 + bestK + 1);
         const double den = s0 - 2 * best + s2;
         const double frac = std::abs (den) > 1e-12 ? std::clamp (0.5 * (s0 - s2) / den, -0.5, 0.5) : 0.0;
+        {   // how alike this cycle is to the previous one (1 = clean sung tone)
+            double ea = 1.0e-12, eb = 1.0e-12, ab = 0;
+            const int64_t c = c0 + bestK;
+            for (int k = -L / 2; k < L / 2; ++k)
+            {
+                const float a = mono[(size_t) ((p0 + k) & mask)], b = mono[(size_t) ((c + k) & mask)];
+                ab += a * b; ea += a * a; eb += b * b;
+            }
+            cycleSim = (float) (ab / std::sqrt (ea * eb));
+        }
         return (double) (c0 + bestK) + frac + (prev - (double) p0);
     }
 
     // ---------------------------------------------------------------- synthesis
+    // detector decision for the audio at input position pos (decisions are stored at their window centre)
+    bool voicedAt (double pos) const
+    {
+        double bestD = 1.0e30; bool v = false;
+        for (const auto& d : decisions)
+            if (std::abs (d.centre - pos) < bestD) { bestD = std::abs (d.centre - pos); v = d.voiced; }
+        return v && bestD < 4.0 * hop * decim;
+    }
+
+    bool markVoicedNear (double pos) const
+    {
+        double bestD = 1.0e30; bool v = false;
+        for (size_t k = 0; k < markCount; ++k)
+        {
+            const size_t i = (markHead + marks.size() - 1 - k) % marks.size();
+            const double d = std::abs (marks[i] - pos);
+            if (d < bestD) { bestD = d; v = markV[i] != 0; }
+            if (marks[i] < pos - 4 * maxT) break;
+        }
+        return v;
+    }
+
     void spawnGrain()
     {
-        const bool v = voicedDet;
-        const double P = period();
-        const double ratio = v ? std::pow (2.0, shift / 12.0) : 1.0;
+        const double P0 = period();
+        const double pos = nextSynth + P0 - (double) D;
+        const bool v = voicedDet && markVoicedNear (pos) && voicedAt (pos);
+        gconf = v ? std::min (1.0f, gconf + (float) (P0 / (0.008 * sr))) : 0.0f;   // ease into each new note
+        grainVoiced = v;
+        const double P = v ? P0 : unvoicedP;
+        const double ratio = v ? std::pow (2.0, shift * gconf / 12.0) : 1.0;
         const double S = P / ratio;
         const double h = std::max (P, S);
         // read the cycle whose position lines up with this grain's centre (keeps output aligned with input)
         const double want = nextSynth + h - (double) D;
+        if (! v)
+        {
+            // not a note (breath, air, consonant, silence): grains read the input exactly in place, so the
+            // overlap-add rebuilds the original sound bit for bit - nothing gets 'tuned'
+            for (auto& g : grains)
+                if (! g.active) { g = { true, want, nextSynth, h, 1.0f }; break; }
+            nextSynth = (nextSynth < (double) t - S) ? (double) t + S : nextSynth + S;
+            return;
+        }
         double best = lastMark, bestD = 1.0e30;
         for (size_t k = 0; k < markCount; ++k)
         {
@@ -246,6 +306,9 @@ private:
             current = bestN;
         }
         if (current != before) slow = fast;           // new note: start averaging afresh (no overshoot)
+        // low confidence (note fading out, vocal fry, rasp, air in the tone): keep the correction it already
+        // has instead of chasing an unreliable pitch
+        if ((lastAp > 0.12f || cycleSim < 0.85f) && current == before) { holdSamples = (int) (0.06 * sr); return; }
         centreTarget = (current - slow) * amount;
         flattenTarget = (slow - fast) * amount * flattenAmount;
         holdSamples = (int) (0.06 * sr);
@@ -265,8 +328,23 @@ private:
     }
 
     // ---------------------------------------------------------------- detector (YIN, decimated)
-    void pushDetector (float x)
+    void recordDecision()
     {
+        // centre of the YIN window (+1 hop for the median filter), in input samples
+        const double centre = (double) t - ((N + tauMax) * 0.5 + hop) * decim;
+        decisions[decHead] = { centre, voicedDet };
+        decHead = (decHead + 1) % decisions.size();
+    }
+
+    struct Bq { float b0 = 1, b1 = 0, b2 = 0, a1 = 0, a2 = 0, z1 = 0, z2 = 0;
+                float run (float x) { const float y = b0 * x + z1; z1 = b1 * x - a1 * y + z2; z2 = b2 * x - a2 * y; return y; } };
+
+    void pushDetector (float xIn)
+    {
+        const float x = rumble.run (xIn);          // removes mic thumps / pops below the voice
+        const float a = air.run (x);
+        eAll = x * x + envCoef * (eAll - x * x);
+        eAir = a * a + envCoef * (eAir - a * a);
         lp1 += 0.45f * (x - lp1);
         lp2 += 0.45f * (lp1 - lp2);
         dacc += lp2;
@@ -301,13 +379,15 @@ private:
                 diff[(size_t) tau] = running > 0 ? (float) (s * tau / running) : 1.0f;
             }
             int best = -1;
+            const float thr = voicedDet ? 0.25f : 0.15f;   // stricter to start a note than to keep one
             for (int tau = tauMin; tau < tauMax; ++tau)
-                if (diff[(size_t) tau] < 0.2f)
+                if (diff[(size_t) tau] < thr)
                 {
                     while (tau + 1 < tauMax && diff[(size_t) (tau + 1)] < diff[(size_t) tau]) ++tau;
                     best = tau;
                     break;
                 }
+            lastAp = best > 0 ? diff[(size_t) best] : 1.0f;
             if (best > 0)
             {
                 double b = best;
@@ -320,11 +400,29 @@ private:
                 freq = (float) (dsr / b);
             }
         }
+        // reject breath, air and pops even if they look slightly periodic:
+        //  - mostly high-frequency hiss (breaths, 's', 'f', 'h')
+        //  - far quieter than the singing around it
+        const float ms = energy / (float) N;
+        const bool hissy = eAir > (voicedDet ? 0.2f : 0.1f) * eAll;
+        const bool tooQuiet = ms < voicedLevel * (voicedDet ? 0.0003f : 0.001f);   // -35 / -30 dB below the voice
+        if (hissy || tooQuiet) freq = 0;
+        if (freq > 0) voicedLevel = std::max (ms, voicedLevel * 0.998f);
+        else voicedLevel *= 0.9999f;
         history[0] = history[1]; history[1] = history[2]; history[2] = freq;
         float sorted[3] = { history[0], history[1], history[2] };
         std::sort (sorted, sorted + 3);
         const float est = (history[2] > 0 && sorted[1] > 0) ? sorted[1] : history[2];
 
+        // a new note must hold a steady pitch for two analysis frames before it gets tuned (~6 ms)
+        if (est > 0 && ! voicedDet)
+        {
+            confirm = (confirm > 0 && std::abs (12.0 * std::log2 (est / confirmF)) < 1.0) ? confirm + 1 : 1;
+            confirmF = est;
+            if (confirm < 2) { recordDecision(); return; }
+        }
+        if (est <= 0) confirm = 0;
+        recordDecision();
         if (est > 0)
         {
             double newT = sr / est;
@@ -340,10 +438,11 @@ private:
             unvoicedHops = 0;
             voicedDet = true;
         }
-        else if (++unvoicedHops > 3)
+        else if (++unvoicedHops > 2 || (est <= 0 && history[2] <= 0 && history[1] <= 0))
         {
             if (voicedDet) { voicedDet = false; haveTrack = false; current = -1; }
         }
+        decisions[(decHead + decisions.size() - 1) % decisions.size()].voiced = voicedDet;
     }
 
     struct Grain { bool active = false; double center = 0, start = 0, h = 1; float gain = 1; };
@@ -360,6 +459,16 @@ private:
     Grain grains[16];
 
     bool voicedDet = false, haveTrack = false;
+    Bq rumble, air;
+    float eAll = 0, eAir = 0, envCoef = 0.999f, voicedLevel = 0, confirmF = 0;
+    int confirm = 0;
+    struct Decision { double centre; bool voiced; };
+    std::array<Decision, 48> decisions {};
+    size_t decHead = 0;
+    std::vector<uint8_t> markV;
+    float gconf = 0;
+    bool grainVoiced = false;
+    float lastAp = 1.0f, cycleSim = 1.0f;
     int current = -1, key = 0, scale = 0;
     double fast = 0, mid = 0, slow = 0, heardMidi = 0, shift = 0;
     double centreShift = 0, centreTarget = 0, flattenShift = 0, flattenTarget = 0;
