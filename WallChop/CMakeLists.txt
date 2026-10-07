@@ -40,14 +40,23 @@ juce_add_plugin(WallChop
     VST3_CATEGORIES Fx
     AU_MAIN_TYPE kAudioUnitType_Effect)
 
+set(WALL_SHARED "${CMAKE_CURRENT_SOURCE_DIR}/../Shared")
 target_sources(WallChop PRIVATE
-    Source/PluginProcessor.cpp
-    Source/PluginEditor.cpp
-    Source/PresetManager.cpp)
+    ${WALL_SHARED}/Vox/Modules.cpp
+    ${WALL_SHARED}/Vox/PluginProcessor.cpp
+    ${WALL_SHARED}/Vox/PluginEditor.cpp
+    ${WALL_SHARED}/Vox/PresetManager.cpp)
 
-target_include_directories(WallChop PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../Shared")
+juce_add_binary_data(WallChopPresets
+    HEADER_NAME FactoryPresets.h
+    NAMESPACE FactoryPresets
+    SOURCES ${WALL_SHARED}/Vox/factory/chop/factory_presets.json)
+set_target_properties(WallChopPresets PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+
+target_include_directories(WallChop PRIVATE "${WALL_SHARED}" "${WALL_SHARED}/Vox")
 
 target_compile_definitions(WallChop PUBLIC
+    WALL_CHOP=1
     WALL_SNAPSHOT=$<BOOL:${WALL_SNAPSHOT}>
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
@@ -56,6 +65,7 @@ target_compile_definitions(WallChop PUBLIC
 
 target_link_libraries(WallChop
     PRIVATE
+        WallChopPresets
         juce::juce_audio_processors
         juce::juce_dsp
         juce::juce_audio_utils

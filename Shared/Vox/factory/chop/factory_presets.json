@@ -1,0 +1,3041 @@
+[
+ {
+  "name": "Empty Chain",
+  "category": "Start",
+  "in": 0,
+  "out": 0,
+  "chain": []
+ },
+ {
+  "name": "Pop Lead",
+  "category": "Pop",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 25,
+     "Amount": 0.9,
+     "Natural": 0.2
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 90,
+     "Low Mid Freq": 350,
+     "Low Mid": -2.5,
+     "High Mid Freq": 3200,
+     "High Mid": 2,
+     "High": 1.5,
+     "Air": 3
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 3,
+     "Release": 5,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "opto",
+    "on": true,
+    "params": {
+     "Peak Reduction": 45,
+     "Gain": 3,
+     "Mode": "Compress",
+     "Emphasis": 0.3,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "sat",
+    "on": true,
+    "params": {
+     "Type": "Tape",
+     "Drive": 0.15,
+     "Tone": 0.0,
+     "Mix": 1.0,
+     "Output": 0
+    }
+   },
+   {
+    "type": "double",
+    "on": true,
+    "params": {
+     "Amount": 0.25,
+     "Width": 1.0,
+     "Detune": 9,
+     "Delay": 16
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/4",
+     "Feedback": 0.25,
+     "Mix": 0.14,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.6,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Plate",
+     "Decay": 1.6,
+     "Pre-Delay": 30,
+     "Size": 0.6,
+     "High Cut": 7500,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.18
+    }
+   }
+  ]
+ },
+ {
+  "name": "Pop Airy Ballad",
+  "category": "Pop",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 40,
+     "Amount": 0.8,
+     "Natural": 0.4
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 85,
+     "Low Mid Freq": 300,
+     "Low Mid": -2
+    }
+   },
+   {
+    "type": "opto",
+    "on": true,
+    "params": {
+     "Peak Reduction": 50,
+     "Gain": 4,
+     "Mode": "Compress",
+     "Emphasis": 0.3,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "pultec",
+    "on": true,
+    "params": {
+     "High Freq": "12 kHz",
+     "High Boost": 5,
+     "Bandwidth": 6
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -26,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/4",
+     "Feedback": 0.3,
+     "Mix": 0.15,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 2.8,
+     "Pre-Delay": 40,
+     "Size": 0.85,
+     "High Cut": 6500,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.26
+    }
+   }
+  ]
+ },
+ {
+  "name": "Silky R&B",
+  "category": "Pop",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.85,
+     "Natural": 0.35
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 90,
+     "Low Mid Freq": 400,
+     "Low Mid": -2.5,
+     "Air": 4
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 10,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 5,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "opto",
+    "on": true,
+    "params": {
+     "Peak Reduction": 45,
+     "Gain": 3,
+     "Mode": "Compress",
+     "Emphasis": 0.3,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "pultec",
+    "on": true,
+    "params": {
+     "High Freq": "12 kHz",
+     "High Boost": 4,
+     "Bandwidth": 7
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "double",
+    "on": true,
+    "params": {
+     "Amount": 0.2,
+     "Width": 1.0,
+     "Detune": 9,
+     "Delay": 16
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/4",
+     "Feedback": 0.3,
+     "Mix": 0.14,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Plate",
+     "Decay": 2.2,
+     "Pre-Delay": 30,
+     "Size": 0.7,
+     "High Cut": 8000,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.2
+    }
+   }
+  ]
+ },
+ {
+  "name": "EDM Topline",
+  "category": "EDM",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 5,
+     "Amount": 1.0,
+     "Natural": 0.0
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 140,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 4
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 14,
+     "Output": 0,
+     "Attack": 5,
+     "Release": 6,
+     "Ratio": "8:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "comp",
+    "on": true,
+    "params": {
+     "Threshold": -22,
+     "Ratio": 4,
+     "Attack": 8,
+     "Release": 80,
+     "Knee": 6,
+     "Makeup": 4,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -30,
+     "Range": 9,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "sat",
+    "on": true,
+    "params": {
+     "Type": "Tube",
+     "Drive": 0.25,
+     "Tone": 0.1,
+     "Mix": 0.6,
+     "Output": 0
+    }
+   },
+   {
+    "type": "double",
+    "on": true,
+    "params": {
+     "Amount": 0.35,
+     "Width": 1.0,
+     "Detune": 9,
+     "Delay": 16
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8 Dotted",
+     "Feedback": 0.4,
+     "Mix": 0.2,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.1
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.2,
+     "Pre-Delay": 20,
+     "Size": 0.9,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.28
+    }
+   }
+  ]
+ },
+ {
+  "name": "EDM Festival Vox",
+  "category": "EDM",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 0,
+     "Amount": 1.0,
+     "Natural": 0.0
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 160,
+     "High Mid Freq": 3500,
+     "High Mid": 4,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 14,
+     "Output": 0,
+     "Attack": 5,
+     "Release": 7,
+     "Ratio": "All",
+     "Mix": 0.5
+    }
+   },
+   {
+    "type": "opto",
+    "on": true,
+    "params": {
+     "Peak Reduction": 50,
+     "Gain": 4,
+     "Mode": "Compress",
+     "Emphasis": 0.3,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -30,
+     "Range": 10,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/16",
+     "Feedback": 0.35,
+     "Mix": 0.2,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.8,
+     "Pre-Delay": 15,
+     "Size": 1.0,
+     "High Cut": 9000,
+     "Low Cut": 350,
+     "Width": 1.0,
+     "Mix": 0.3
+    }
+   }
+  ]
+ },
+ {
+  "name": "Rap Upfront",
+  "category": "Rap",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 80,
+     "Amount": 0.25,
+     "Natural": 0.5
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 100,
+     "Low": 1.5,
+     "Low Mid Freq": 300,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "High": 2
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 14,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "8:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "opto",
+    "on": true,
+    "params": {
+     "Peak Reduction": 40,
+     "Gain": 3,
+     "Mode": "Compress",
+     "Emphasis": 0.3,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "sat",
+    "on": true,
+    "params": {
+     "Type": "Tape",
+     "Drive": 0.3,
+     "Tone": 0.0,
+     "Mix": 1.0,
+     "Output": 0
+    }
+   },
+   {
+    "type": "double",
+    "on": true,
+    "params": {
+     "Amount": 0.08,
+     "Width": 1.0,
+     "Detune": 9,
+     "Delay": 16
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.15,
+     "Mix": 0.06,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.8,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Room",
+     "Decay": 0.7,
+     "Pre-Delay": 10,
+     "Size": 0.4,
+     "High Cut": 8000,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.06
+    }
+   }
+  ]
+ },
+ {
+  "name": "Rap Melodic Trap",
+  "category": "Rap",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 0,
+     "Amount": 1.0,
+     "Natural": 0.0
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3.5,
+     "Air": 4
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 14,
+     "Output": 0,
+     "Attack": 5,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "comp",
+    "on": true,
+    "params": {
+     "Threshold": -20,
+     "Ratio": 3,
+     "Attack": 10,
+     "Release": 120,
+     "Knee": 6,
+     "Makeup": 2,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "sat",
+    "on": true,
+    "params": {
+     "Type": "Tube",
+     "Drive": 0.2,
+     "Tone": 0,
+     "Mix": 0.7,
+     "Output": 0
+    }
+   },
+   {
+    "type": "double",
+    "on": true,
+    "params": {
+     "Amount": 0.2,
+     "Width": 1.0,
+     "Detune": 9,
+     "Delay": 16
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.35,
+     "Mix": 0.2,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.6,
+     "Wow": 0.2
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Plate",
+     "Decay": 1.4,
+     "Pre-Delay": 20,
+     "Size": 0.5,
+     "High Cut": 7000,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.15
+    }
+   }
+  ]
+ },
+ {
+  "name": "Rap Crunchy",
+  "category": "Rap",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 40,
+     "Amount": 0.3,
+     "Natural": 0.4
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 130,
+     "High Mid Freq": 3000,
+     "High Mid": 4
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 16,
+     "Output": 0,
+     "Attack": 5,
+     "Release": 6,
+     "Ratio": "All",
+     "Mix": 0.6
+    }
+   },
+   {
+    "type": "sat",
+    "on": true,
+    "params": {
+     "Type": "Crunch",
+     "Drive": 0.55,
+     "Tone": 0.2,
+     "Mix": 0.6,
+     "Output": 0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.2,
+     "Mix": 0.08,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.8,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Room",
+     "Decay": 0.8,
+     "Pre-Delay": 10,
+     "Size": 0.4,
+     "High Cut": 7000,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.08
+    }
+   }
+  ]
+ },
+ {
+  "name": "Worship Lead",
+  "category": "Worship",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 45,
+     "Amount": 0.7,
+     "Natural": 0.5
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 90,
+     "Low": 1,
+     "Low Mid Freq": 350,
+     "Low Mid": -2,
+     "High Mid Freq": 2800,
+     "High Mid": 1.5,
+     "Air": 3
+    }
+   },
+   {
+    "type": "opto",
+    "on": true,
+    "params": {
+     "Peak Reduction": 50,
+     "Gain": 4,
+     "Mode": "Compress",
+     "Emphasis": 0.3,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "varimu",
+    "on": true,
+    "params": {
+     "Input": 4,
+     "Threshold": -16,
+     "Time": "5 Auto",
+     "Output": 0,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "pultec",
+    "on": true,
+    "params": {
+     "High Freq": "10 kHz",
+     "High Boost": 3,
+     "Bandwidth": 6
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -26,
+     "Range": 7,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "double",
+    "on": true,
+    "params": {
+     "Amount": 0.12,
+     "Width": 1.0,
+     "Detune": 9,
+     "Delay": 16
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/4",
+     "Feedback": 0.3,
+     "Mix": 0.15,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.6,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 35,
+     "Size": 0.9,
+     "High Cut": 6500,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.3
+    }
+   }
+  ]
+ },
+ {
+  "name": "Worship Intimate",
+  "category": "Worship",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 60,
+     "Amount": 0.5,
+     "Natural": 0.6
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 80,
+     "Low": 2,
+     "Low Mid Freq": 300,
+     "Low Mid": -1.5,
+     "High Mid Freq": 2800,
+     "High Mid": 1
+    }
+   },
+   {
+    "type": "opto",
+    "on": true,
+    "params": {
+     "Peak Reduction": 45,
+     "Gain": 3,
+     "Mode": "Compress",
+     "Emphasis": 0.3,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -26,
+     "Range": 7,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "sat",
+    "on": true,
+    "params": {
+     "Type": "Tape",
+     "Drive": 0.1,
+     "Tone": 0.0,
+     "Mix": 1.0,
+     "Output": 0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8 Dotted",
+     "Feedback": 0.2,
+     "Mix": 0.08,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Plate",
+     "Decay": 1.8,
+     "Pre-Delay": 25,
+     "Size": 0.6,
+     "High Cut": 7000,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.2
+    }
+   }
+  ]
+ },
+ {
+  "name": "Vintage Soul",
+  "category": "Character",
+  "in": 0,
+  "out": 2,
+  "chain": [
+   {
+    "type": "tubeeq",
+    "on": true,
+    "params": {
+     "Low": 2,
+     "Mid Freq": 1500,
+     "Mid": 1,
+     "High": 2,
+     "Air": 1,
+     "Drive": 0.4
+    }
+   },
+   {
+    "type": "varimu",
+    "on": true,
+    "params": {
+     "Input": 8,
+     "Threshold": -20,
+     "Time": "2",
+     "Output": 0,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "opto",
+    "on": true,
+    "params": {
+     "Peak Reduction": 40,
+     "Gain": 2,
+     "Mode": "Compress",
+     "Emphasis": 0.3,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/16",
+     "Feedback": 0.1,
+     "Mix": 0.1,
+     "Mode": "Mono",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.4
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Chamber",
+     "Decay": 1.4,
+     "Pre-Delay": 15,
+     "Size": 0.5,
+     "High Cut": 6000,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.18
+    }
+   }
+  ]
+ },
+ {
+  "name": "Clean & Natural",
+  "category": "Character",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 80
+    }
+   },
+   {
+    "type": "comp",
+    "on": true,
+    "params": {
+     "Threshold": -18,
+     "Ratio": 2.5,
+     "Attack": 15,
+     "Release": 150,
+     "Knee": 6,
+     "Makeup": 2,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -27,
+     "Range": 6,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Room",
+     "Decay": 0.9,
+     "Pre-Delay": 10,
+     "Size": 0.5,
+     "High Cut": 7000,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.08
+    }
+   }
+  ]
+ },
+ {
+  "name": "Hard Tune Robot",
+  "category": "Character",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 0,
+     "Amount": 1.0,
+     "Natural": 0.0
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 120,
+     "High Mid": 2,
+     "Air": 3
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.15,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Plate",
+     "Decay": 1.2,
+     "Pre-Delay": 15,
+     "Size": 0.5,
+     "High Cut": 7000,
+     "Low Cut": 200,
+     "Width": 1.0,
+     "Mix": 0.14
+    }
+   }
+  ]
+ },
+ {
+  "name": "Stutter Fill 1/16",
+  "category": "Chop - Stutter",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "stutter",
+    "on": true,
+    "params": {
+     "Repeat": "Every Bar",
+     "Length": "1/4",
+     "Slice": "1/16",
+     "Pitch Drop": 0,
+     "Decay": 0,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Stutter 1/32 Roll",
+  "category": "Chop - Stutter",
+  "in": 0,
+  "out": 2,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "stutter",
+    "on": true,
+    "params": {
+     "Repeat": "Every Bar",
+     "Length": "1/2",
+     "Slice": "1/32",
+     "Pitch Drop": 0,
+     "Decay": 0.15,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Stutter Pitch Drop",
+  "category": "Chop - Stutter",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "stutter",
+    "on": true,
+    "params": {
+     "Repeat": "Every 2 Bars",
+     "Length": "1 Bar",
+     "Slice": "1/8",
+     "Pitch Drop": 1.5,
+     "Decay": 0.2,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Triplet Repeat",
+  "category": "Chop - Stutter",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "stutter",
+    "on": true,
+    "params": {
+     "Repeat": "Every Bar",
+     "Length": "1/2",
+     "Slice": "1/16 T",
+     "Pitch Drop": 0,
+     "Decay": 0,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Trance Gate",
+  "category": "Chop - Gate",
+  "in": 0,
+  "out": 4,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "gate",
+    "on": true,
+    "params": {
+     "Pattern": "Trance 1",
+     "Rate": "1/16",
+     "Length": 0.6,
+     "Depth": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.1,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.35
+    }
+   }
+  ]
+ },
+ {
+  "name": "3-3-2 Gate",
+  "category": "Chop - Gate",
+  "in": 0,
+  "out": 5,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "gate",
+    "on": true,
+    "params": {
+     "Pattern": "Trance 2",
+     "Rate": "1/16",
+     "Length": 0.7,
+     "Depth": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Offbeat Pump",
+  "category": "Chop - Gate",
+  "in": 0,
+  "out": 5,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "gate",
+    "on": true,
+    "params": {
+     "Pattern": "Offbeat",
+     "Rate": "1/16",
+     "Length": 0.9,
+     "Depth": 0.9
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8 Dotted",
+     "Feedback": 0.3,
+     "Mix": 0.2,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "1/16 Machine Chop",
+  "category": "Chop - Gate",
+  "in": 0,
+  "out": 4,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "gate",
+    "on": true,
+    "params": {
+     "Pattern": "1/16 Chop",
+     "Rate": "1/16",
+     "Length": 0.45,
+     "Depth": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Build Up Gate",
+  "category": "Chop - Gate",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "gate",
+    "on": true,
+    "params": {
+     "Pattern": "Build Up",
+     "Rate": "1/32",
+     "Length": 0.5,
+     "Depth": 1.0
+    }
+   },
+   {
+    "type": "filter",
+    "on": true,
+    "params": {
+     "Type": "High Pass",
+     "Cutoff": 300,
+     "Resonance": 0.4,
+     "Sweep Rate": "1 Bar",
+     "Sweep": 0.5
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Chipmunk Chop",
+  "category": "Chop - Bender",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "bender",
+    "on": true,
+    "params": {
+     "Mode": "Shift",
+     "Pitch": 7,
+     "Formant": 6,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "stutter",
+    "on": true,
+    "params": {
+     "Repeat": "Every Bar",
+     "Length": "1/8",
+     "Slice": "1/32",
+     "Pitch Drop": 0,
+     "Decay": 0,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Pitched Down Hook",
+  "category": "Chop - Bender",
+  "in": 0,
+  "out": 3,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "bender",
+    "on": true,
+    "params": {
+     "Mode": "Shift",
+     "Pitch": -5,
+     "Formant": -4,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Deep Demon",
+  "category": "Chop - Bender",
+  "in": 0,
+  "out": 5,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "bender",
+    "on": true,
+    "params": {
+     "Mode": "Shift",
+     "Pitch": -12,
+     "Formant": -6,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "sat",
+    "on": true,
+    "params": {
+     "Type": "Crunch",
+     "Drive": 0.4,
+     "Tone": 0,
+     "Mix": 0.4,
+     "Output": 0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.08,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.2
+    }
+   }
+  ]
+ },
+ {
+  "name": "Baby Voice",
+  "category": "Chop - Bender",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "bender",
+    "on": true,
+    "params": {
+     "Mode": "Shift",
+     "Pitch": 5,
+     "Formant": 9,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Robot Lead",
+  "category": "Chop - Bender",
+  "in": 0,
+  "out": 3,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "bender",
+    "on": true,
+    "params": {
+     "Mode": "Robot",
+     "Pitch": 0,
+     "Formant": 0,
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.2,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.2
+    }
+   }
+  ]
+ },
+ {
+  "name": "Octave Up Lead",
+  "category": "Chop - Bender",
+  "in": 0,
+  "out": 6,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "bender",
+    "on": true,
+    "params": {
+     "Mode": "Shift",
+     "Pitch": 12,
+     "Formant": 0,
+     "Mix": 0.6
+    }
+   },
+   {
+    "type": "double",
+    "on": true,
+    "params": {
+     "Amount": 0.4,
+     "Width": 1.0,
+     "Detune": 9,
+     "Delay": 16
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Filter Sweep Build",
+  "category": "Chop - Filter",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "filter",
+    "on": true,
+    "params": {
+     "Type": "High Pass",
+     "Cutoff": 400,
+     "Resonance": 0.5,
+     "Sweep Rate": "1 Bar",
+     "Sweep": 0.6
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Wobble Vox",
+  "category": "Chop - Filter",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "filter",
+    "on": true,
+    "params": {
+     "Type": "Low Pass",
+     "Cutoff": 1500,
+     "Resonance": 0.7,
+     "Sweep Rate": "1/8",
+     "Sweep": 0.6
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Telephone Chop",
+  "category": "Chop - Filter",
+  "in": 0,
+  "out": 14,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "filter",
+    "on": true,
+    "params": {
+     "Type": "Band Pass",
+     "Cutoff": 1500,
+     "Resonance": 0.6,
+     "Sweep Rate": "1 Bar",
+     "Sweep": 0.0
+    }
+   },
+   {
+    "type": "gate",
+    "on": true,
+    "params": {
+     "Pattern": "1/16 Chop",
+     "Rate": "1/16",
+     "Length": 0.5,
+     "Depth": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Room",
+     "Decay": 0.8,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.1
+    }
+   }
+  ]
+ },
+ {
+  "name": "Tape Stop Drop (switch ON)",
+  "category": "Chop - FX",
+  "in": 0,
+  "out": 0,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "tapestop",
+    "on": false,
+    "params": {
+     "Stop Time": 1200
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8",
+     "Feedback": 0.3,
+     "Mix": 0.12,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.0,
+     "Pre-Delay": 20,
+     "Size": 0.8,
+     "High Cut": 8000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.25
+    }
+   }
+  ]
+ },
+ {
+  "name": "Festival Chop",
+  "category": "Chop - FX",
+  "in": 0,
+  "out": 8,
+  "chain": [
+   {
+    "type": "tune",
+    "on": true,
+    "params": {
+     "Speed": 20,
+     "Amount": 0.6,
+     "Natural": 0.3
+    }
+   },
+   {
+    "type": "eq",
+    "on": true,
+    "params": {
+     "Low Cut": 110,
+     "Low Mid Freq": 350,
+     "Low Mid": -3,
+     "High Mid Freq": 3500,
+     "High Mid": 3,
+     "Air": 5
+    }
+   },
+   {
+    "type": "fet",
+    "on": true,
+    "params": {
+     "Input": 12,
+     "Output": 0,
+     "Attack": 4,
+     "Release": 6,
+     "Ratio": "4:1",
+     "Mix": 1.0
+    }
+   },
+   {
+    "type": "deess",
+    "on": true,
+    "params": {
+     "Threshold": -28,
+     "Range": 8,
+     "Frequency": 6500
+    }
+   },
+   {
+    "type": "bender",
+    "on": true,
+    "params": {
+     "Mode": "Shift",
+     "Pitch": 12,
+     "Formant": 3,
+     "Mix": 0.5
+    }
+   },
+   {
+    "type": "gate",
+    "on": true,
+    "params": {
+     "Pattern": "Trance 2",
+     "Rate": "1/16",
+     "Length": 0.7,
+     "Depth": 1.0
+    }
+   },
+   {
+    "type": "delay",
+    "on": true,
+    "params": {
+     "Time": "1/8 Dotted",
+     "Feedback": 0.45,
+     "Mix": 0.25,
+     "Mode": "Ping-Pong",
+     "Low Cut": 250,
+     "High Cut": 6000,
+     "Ducking": 0.55,
+     "Wow": 0.15
+    }
+   },
+   {
+    "type": "reverb",
+    "on": true,
+    "params": {
+     "Type": "Hall",
+     "Decay": 3.5,
+     "Pre-Delay": 20,
+     "Size": 0.95,
+     "High Cut": 9000,
+     "Low Cut": 300,
+     "Width": 1.0,
+     "Mix": 0.35
+    }
+   }
+  ]
+ }
+]

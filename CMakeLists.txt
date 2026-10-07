@@ -40,14 +40,23 @@ juce_add_plugin(WallVox
     VST3_CATEGORIES Fx
     AU_MAIN_TYPE kAudioUnitType_Effect)
 
+set(WALL_SHARED "${CMAKE_CURRENT_SOURCE_DIR}/Shared")
 target_sources(WallVox PRIVATE
-    Source/PluginProcessor.cpp
-    Source/PluginEditor.cpp
-    Source/PresetManager.cpp)
+    ${WALL_SHARED}/Vox/Modules.cpp
+    ${WALL_SHARED}/Vox/PluginProcessor.cpp
+    ${WALL_SHARED}/Vox/PluginEditor.cpp
+    ${WALL_SHARED}/Vox/PresetManager.cpp)
 
-target_include_directories(WallVox PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/Shared")
+juce_add_binary_data(WallVoxPresets
+    HEADER_NAME FactoryPresets.h
+    NAMESPACE FactoryPresets
+    SOURCES ${WALL_SHARED}/Vox/factory/vox/factory_presets.json)
+set_target_properties(WallVoxPresets PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+
+target_include_directories(WallVox PRIVATE "${WALL_SHARED}" "${WALL_SHARED}/Vox")
 
 target_compile_definitions(WallVox PUBLIC
+    WALL_CHOP=0
     WALL_SNAPSHOT=$<BOOL:${WALL_SNAPSHOT}>
     JUCE_WEB_BROWSER=0
     JUCE_USE_CURL=0
@@ -56,6 +65,7 @@ target_compile_definitions(WallVox PUBLIC
 
 target_link_libraries(WallVox
     PRIVATE
+        WallVoxPresets
         juce::juce_audio_processors
         juce::juce_dsp
         juce::juce_audio_utils

@@ -2,7 +2,7 @@
   {
     "id": "wallvox",
     "name": "WallVox",
-    "tagline": "One-click vocal chains for pop, rap, EDM and worship",
+    "tagline": "Build-your-own vocal chain: clean tuning, FET/Opto/Vari-Mu, Pult & Tube EQ, delay, reverb",
     "color": "#9b5cff",
     "src": [
       "Source",
@@ -20,7 +20,7 @@
   {
     "id": "wallchop",
     "name": "Wall Chop",
-    "tagline": "Vocal chops: bender, stutter, gate, filter and tape stop",
+    "tagline": "Everything in WallVox plus bender, stutter, gate, filter and tape stop modules",
     "color": "#39ff14",
     "src": [
       "WallChop",
@@ -41,7 +41,7 @@
     "color": "#ffb238",
     "src": [
       "WallChords",
-      "Shared"
+      "Shared/WallLook.h"
     ],
     "zip": "WallChords-Mac.zip",
     "bundles": [
